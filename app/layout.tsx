@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zephea",
-  description: "Zephea for Finance",
+  title: "Link",
+  description: "Link is for college students",
 };
 
 export default function RootLayout({

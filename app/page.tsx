@@ -124,6 +124,39 @@ export default function Home() {
   return (
     <div className="ml-24 mt-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-900">Home</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Card
+            key={i}
+            className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white"
+          >
+            <CardHeader>
+              <CardTitle>Card {i + 1}</CardTitle>
+              <CardDescription>This is a description for card {i + 1}.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-20 flex items-center justify-center text-gray-400">Content</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-8 pr-8">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card
+            key={i}
+            className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative"
+          >
+            <CardHeader>
+              <CardTitle>Coming Soon</CardTitle>
+              <CardDescription>This feature is not yet available.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-20 flex items-center justify-center text-gray-400">Unavailable</div>
+            </CardContent>
+            <div className="absolute top-2 right-2 text-xs text-gray-400 font-semibold uppercase tracking-wider">Coming Soon</div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 } 
