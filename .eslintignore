@@ -1,0 +1,9 @@
+# .eslintignore
+node_modules/
+.next/
+out/
+public/
+dist/
+build/
+coverage/
+package-lock.json 

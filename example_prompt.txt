@@ -1,0 +1,16 @@
+Solar Farm Financial Model Input Example:
+
+Project Capital Expenditure (Capex): $2,500,000
+Annual Operational Expenditure (Opex): $100,000
+Debt Structure: 80% debt, 20% equity
+Inflation Rate: 2%
+Solar Farm Capacity: 10 MW
+Project Location: California, USA
+Grid Connection Fee: $150,000 (one-time cost)
+Annual Energy Output per MW: 1,500 MWh per year
+Operation Start Date: January 1, 2026
+Annual Debt Service Coverage Ratio (DSCR): 1.25
+Loan Refinancing Rate (after 10 years): 5%
+Working Capital Reserve: $50,000
+Annual Asset Disposal Value: $100,000 (after 25 years)
+Green Certificates/RECs Revenue: $25,000 per year
