@@ -160,6 +160,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/",
       icon: Home,
     },
+    {
+      title: "Resource Library",
+      url: "/resource-library",
+    },
+    {
+      title: "Social Media Integration",
+      url: "/social-media",
+    },
+    {
+      title: "User-Generated Content",
+      url: "/ugc",
+    },
+    {
+      title: "Comprehensive Calendar",
+      url: "/calendar",
+    },
+    {
+      title: "Widget",
+      url: "/widget",
+    },
+    {
+      title: "Offline",
+      url: "/offline",
+    },
   ];
 
   const navMainItems = [

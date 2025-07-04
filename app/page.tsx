@@ -125,37 +125,85 @@ export default function Home() {
     <div className="ml-24 mt-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-900">Home</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Card
-            key={i}
-            className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white"
-          >
-            <CardHeader>
-              <CardTitle>Card {i + 1}</CardTitle>
-              <CardDescription>This is a description for card {i + 1}.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-20 flex items-center justify-center text-gray-400">Content</div>
-            </CardContent>
-          </Card>
-        ))}
+        {/* Greek life selection */}
+        <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
+          <CardHeader>
+            <CardTitle>Greek Life</CardTitle>
+            <CardDescription>Join a fraternity or sorority</CardDescription>
+          </CardHeader>
+        </Card>
+        {/* Dorm selection */}
+        <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
+          <CardHeader>
+            <CardTitle>Dorms</CardTitle>
+            <CardDescription>Choose, rate, and match roommates</CardDescription>
+          </CardHeader>
+        </Card>
+        {/* Club selection */}
+        <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
+          <CardHeader>
+            <CardTitle>Clubs</CardTitle>
+            <CardDescription>Find and apply</CardDescription>
+          </CardHeader>
+        </Card>
+        {/* Dining options */}
+        <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
+          <CardHeader>
+            <CardTitle>Dining</CardTitle>
+            <CardDescription>Berkeley eats & meal budget</CardDescription>
+          </CardHeader>
+        </Card>
+        {/* Budget and financial planning */}
+        <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
+          <CardHeader>
+            <CardTitle>Budget</CardTitle>
+            <CardDescription>Track expenses & aid</CardDescription>
+          </CardHeader>
+        </Card>
+        {/* General campus orientation tasks */}
+        <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
+          <CardHeader>
+            <CardTitle>Orientation</CardTitle>
+            <CardDescription>Map & contacts</CardDescription>
+          </CardHeader>
+        </Card>
+        {/* Fill remaining 2 cards for 4x2 grid with empty placeholders */}
+        <Card className="border border-gray-200 shadow-md bg-white opacity-0 pointer-events-none" />
+        <Card className="border border-gray-200 shadow-md bg-white opacity-0 pointer-events-none" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-8 pr-8">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card
-            key={i}
-            className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative"
-          >
-            <CardHeader>
-              <CardTitle>Coming Soon</CardTitle>
-              <CardDescription>This feature is not yet available.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-20 flex items-center justify-center text-gray-400">Unavailable</div>
-            </CardContent>
-            <div className="absolute top-2 right-2 text-xs text-gray-400 font-semibold uppercase tracking-wider">Coming Soon</div>
-          </Card>
-        ))}
+        {/* Enrollment */}
+        <Card className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative">
+          <CardHeader>
+            <CardTitle>Enrollment</CardTitle>
+            <CardDescription>Course sign-up & registration</CardDescription>
+          </CardHeader>
+          <div className="absolute top-2 right-2 text-xs text-gray-400 font-semibold uppercase tracking-wider">Coming Soon</div>
+        </Card>
+        {/* Student Life */}
+        <Card className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative">
+          <CardHeader>
+            <CardTitle>Student Life</CardTitle>
+            <CardDescription>Events & campus activities</CardDescription>
+          </CardHeader>
+          <div className="absolute top-2 right-2 text-xs text-gray-400 font-semibold uppercase tracking-wider">Coming Soon</div>
+        </Card>
+        {/* Academic and career planning */}
+        <Card className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative">
+          <CardHeader>
+            <CardTitle>Academic & Career</CardTitle>
+            <CardDescription>Advising & resources</CardDescription>
+          </CardHeader>
+          <div className="absolute top-2 right-2 text-xs text-gray-400 font-semibold uppercase tracking-wider">Coming Soon</div>
+        </Card>
+        {/* Health and wellness */}
+        <Card className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative">
+          <CardHeader>
+            <CardTitle>Health & Wellness</CardTitle>
+            <CardDescription>Support & services</CardDescription>
+          </CardHeader>
+          <div className="absolute top-2 right-2 text-xs text-gray-400 font-semibold uppercase tracking-wider">Coming Soon</div>
+        </Card>
       </div>
     </div>
   );
