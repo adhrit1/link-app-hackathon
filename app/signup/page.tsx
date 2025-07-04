@@ -17,9 +17,7 @@ type AuthError = {
 };
 
 export default function SignupPage() {
-  // Redirect to home page immediately
-  if (typeof window !== 'undefined') {
-    window.location.href = '/';
-  }
+  // TODO: Implement signup form and logic here
+  // Remove the immediate redirect
   return null;
 } 

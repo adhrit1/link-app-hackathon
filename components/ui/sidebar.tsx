@@ -21,10 +21,7 @@ import {
   UserSearch,
   ShoppingCart,
   BookOpen,
-  Share2,
-  Users,
   Calendar,
-  WifiOff,
 } from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -282,24 +279,12 @@ export function SessionNavBar() {
                         {!isCollapsed && <p className="ml-2 text-sm font-medium">Resource Library</p>}
                       </div>
                       <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
-                        <Share2 className="h-4 w-4" />
-                        {!isCollapsed && <p className="ml-2 text-sm font-medium">Social Media Integration</p>}
-                      </div>
-                      <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
-                        <Users className="h-4 w-4" />
-                        {!isCollapsed && <p className="ml-2 text-sm font-medium">User-Generated Content</p>}
-                      </div>
-                      <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
                         <Calendar className="h-4 w-4" />
-                        {!isCollapsed && <p className="ml-2 text-sm font-medium">Comprehensive Calendar</p>}
+                        {!isCollapsed && <p className="ml-2 text-sm font-medium">Calendar</p>}
                       </div>
                       <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
-                        <Layout className="h-4 w-4" />
-                        {!isCollapsed && <p className="ml-2 text-sm font-medium">Widget</p>}
-                      </div>
-                      <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
-                        <WifiOff className="h-4 w-4" />
-                        {!isCollapsed && <p className="ml-2 text-sm font-medium">Offline</p>}
+                        <ShoppingCart className="h-4 w-4" />
+                        {!isCollapsed && <p className="ml-2 text-sm font-medium">Wallet</p>}
                       </div>
                     </div>
                   </div>
