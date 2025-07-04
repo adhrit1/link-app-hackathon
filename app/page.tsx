@@ -33,6 +33,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { EmptyState } from "@/components/ui/empty-state"
 import { useRouter } from "next/navigation"
 import { TextShimmer } from "@/components/ui/text-shimmer"
+import Link from "next/link"
 
 // Define type for API brand rankings response
 type APIBrandRanking = {
@@ -125,30 +126,24 @@ export default function Home() {
     <div className="ml-24 mt-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-900">Home</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
-        {[
-          "Enrolment",
-          "Grades",
-          "Ed Discussion",
-          "Canvas",
-          "Job",
-          "Health",
-          "Saftey",
-          "Academic Support",
-          "Transportation",
-          "Personal Health",
-          "Student Wallet",
-          "Marketplace",
-          "Community",
-          "Quick Cash",
-          "On Campus"
-        ].map((title) => (
-          <button key={title} className="w-full h-full cursor-pointer text-left focus:outline-none" type="button">
-            <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
-              <CardHeader>
-                <CardTitle>{title}</CardTitle>
-              </CardHeader>
-            </Card>
-          </button>
+        {["Enrolment", "Grades", "Ed Discussion", "Canvas", "Job", "Health", "Saftey", "Academic Support", "Transportation", "Personal Health", "Student Wallet", "Marketplace", "Community", "Quick Cash", "On Campus"].map((title) => (
+          title === "Enrolment" ? (
+            <Link href="/enrolment" key={title} className="w-full h-full cursor-pointer text-left focus:outline-none">
+              <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
+                <CardHeader>
+                  <CardTitle>{title}</CardTitle>
+                </CardHeader>
+              </Card>
+            </Link>
+          ) : (
+            <button key={title} className="w-full h-full cursor-pointer text-left focus:outline-none" type="button">
+              <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
+                <CardHeader>
+                  <CardTitle>{title}</CardTitle>
+                </CardHeader>
+              </Card>
+            </button>
+          )
         ))}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-8 pr-8">
