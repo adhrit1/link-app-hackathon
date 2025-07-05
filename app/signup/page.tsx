@@ -1,23 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { AuthUI } from "@/components/ui/auth-ui";
 import { supabase } from "@/lib/supabase";
-
-// Define a proper error type instead of using any
-type AuthError = {
-  message: string;
-  [key: string]: unknown;
-};
+import { useAuth } from "@/lib/AuthContext";
 
 export default function SignupPage() {
-  // TODO: Implement signup form and logic here
-  // Remove the immediate redirect
-  return null;
+  const router = useRouter();
+  const { user } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // If already logged in, redirect to home
+  if (user) {
+    router.replace("/");
+    return null;
+  }
+
+  // Custom form handlers to inject into AuthUI
+  async function handleSignUp({ name, email, password }: { name: string; email: string; password: string }) {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      router.replace("/");
+    }
+  }
+
+  async function handleSignIn({ email, password }: { email: string; password: string }) {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      router.replace("/");
+    }
+  }
+
+  // Render AuthUI with injected logic (will need to pass these to the forms inside AuthUI)
+  return (
+    <>
+      <AuthUI />
+      {/* Optionally show error below the form */}
+      {error && <div className="text-red-500 text-center mt-4">{error}</div>}
+    </>
+  );
 } 
