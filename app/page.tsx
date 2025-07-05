@@ -34,6 +34,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { useRouter } from "next/navigation"
 import { TextShimmer } from "@/components/ui/text-shimmer"
 import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
 
 // Define type for API brand rankings response
 type APIBrandRanking = {
@@ -122,59 +123,56 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function Home() {
+  // Define the boxes and their blurbs
+  const boxes = [
+    { title: "Community", blurb: "Connect with student groups and events.", onboard: true },
+    { title: "Housing", blurb: "Find student housing and roommates.", onboard: true },
+    { title: "Enrolment", blurb: "Sign up for courses and manage your registration." },
+    { title: "Grades", blurb: "View your academic performance and grades." },
+    { title: "Ed Discussion", blurb: "Join class discussions and ask questions." },
+    { title: "Canvas", blurb: "Access course materials and assignments." },
+    { title: "Job", blurb: "Find on-campus and part-time job opportunities." },
+    { title: "Health", blurb: "Access health resources and support." },
+    { title: "Saftey", blurb: "Stay informed about campus safety." },
+    { title: "Academic Support", blurb: "Get help with your studies and tutoring." },
+    { title: "Transportation", blurb: "Plan your commute and campus transport." },
+    { title: "Personal Health", blurb: "Track your wellness and appointments." },
+    { title: "Student Wallet", blurb: "Manage your student finances and payments." },
+    { title: "Marketplace", blurb: "Buy, sell, or trade with other students." },
+    { title: "Quick Cash", blurb: "Find quick ways to earn money on campus." },
+    { title: "On Campus", blurb: "Explore campus facilities and services." },
+  ];
   return (
     <div className="ml-24 mt-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-900">Home</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
-        {["Enrolment", "Grades", "Ed Discussion", "Canvas", "Job", "Health", "Saftey", "Academic Support", "Transportation", "Personal Health", "Student Wallet", "Marketplace", "Community", "Quick Cash", "On Campus"].map((title) => (
+        {boxes.map(({ title, blurb, onboard }) => (
           title === "Enrolment" ? (
             <Link href="/enrolment" key={title} className="w-full h-full cursor-pointer text-left focus:outline-none">
               <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
-                <CardHeader>
+                <CardHeader className="relative">
+                  {onboard && (
+                    <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">Onboard now</Badge>
+                  )}
                   <CardTitle>{title}</CardTitle>
+                  <CardDescription>{blurb}</CardDescription>
                 </CardHeader>
               </Card>
             </Link>
           ) : (
             <button key={title} className="w-full h-full cursor-pointer text-left focus:outline-none" type="button">
               <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
-                <CardHeader>
+                <CardHeader className="relative">
+                  {onboard && (
+                    <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">Onboard now</Badge>
+                  )}
                   <CardTitle>{title}</CardTitle>
+                  <CardDescription>{blurb}</CardDescription>
                 </CardHeader>
               </Card>
             </button>
           )
         ))}
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mt-8 pr-8">
-        {/* Enrollment */}
-        <Card className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative">
-          <CardHeader>
-            <CardTitle>Enrollment</CardTitle>
-            <CardDescription>Course sign-up & registration</CardDescription>
-          </CardHeader>
-        </Card>
-        {/* Student Life */}
-        <Card className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative">
-          <CardHeader>
-            <CardTitle>Student Life</CardTitle>
-            <CardDescription>Events & campus activities</CardDescription>
-          </CardHeader>
-        </Card>
-        {/* Academic and career planning */}
-        <Card className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative">
-          <CardHeader>
-            <CardTitle>Academic & Career</CardTitle>
-            <CardDescription>Advising & resources</CardDescription>
-          </CardHeader>
-        </Card>
-        {/* Health and wellness */}
-        <Card className="border-2 border-dotted border-gray-300 shadow-none bg-gray-50 opacity-70 cursor-not-allowed relative">
-          <CardHeader>
-            <CardTitle>Health & Wellness</CardTitle>
-            <CardDescription>Support & services</CardDescription>
-          </CardHeader>
-        </Card>
       </div>
     </div>
   );
