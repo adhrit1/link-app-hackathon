@@ -113,8 +113,15 @@ PasswordInput.displayName = "PasswordInput";
 // --- FORMS & AUTH LOGIC ---
 
 // FORM: SignInForm
-function SignInForm() {
-  const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); console.log("UI: Sign In form submitted"); };
+function SignInForm({ onSignIn, loading }: { onSignIn?: (data: { email: string; password: string }) => Promise<void>; loading?: boolean }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (onSignIn) {
+      await onSignIn({ email, password });
+    }
+  };
   return (
     <form onSubmit={handleSignIn} autoComplete="on" className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
@@ -122,17 +129,25 @@ function SignInForm() {
         <p className="text-balance text-sm text-muted-foreground">Access all your university tools in one place.</p>
       </div>
       <div className="grid gap-4">
-        <div className="grid gap-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" /></div>
-        <PasswordInput name="password" label="Password" required autoComplete="current-password" placeholder="••••••••" />
-        <Button type="submit" variant="outline" className="mt-2">Sign In</Button>
+        <div className="grid gap-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
+        <PasswordInput name="password" label="Password" required autoComplete="current-password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
+        <Button type="submit" variant="outline" className="mt-2" disabled={loading}>{loading ? "Signing in..." : "Sign In"}</Button>
       </div>
     </form>
   );
 }
 
 // FORM: SignUpForm
-function SignUpForm() {
-  const handleSignUp = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); console.log("UI: Sign Up form submitted"); };
+function SignUpForm({ onSignUp, loading }: { onSignUp?: (data: { name: string; email: string; password: string }) => Promise<void>; loading?: boolean }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (onSignUp) {
+      await onSignUp({ name, email, password });
+    }
+  };
   return (
     <form onSubmit={handleSignUp} autoComplete="on" className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
@@ -140,17 +155,17 @@ function SignUpForm() {
         <p className="text-balance text-sm text-muted-foreground">Sign up to access all your university utilities in one platform.</p>
       </div>
       <div className="grid gap-4">
-        <div className="grid gap-1"><Label htmlFor="name">Full Name</Label><Input id="name" name="name" type="text" placeholder="John Doe" required autoComplete="name" /></div>
-        <div className="grid gap-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" /></div>
-        <PasswordInput name="password" label="Password" required autoComplete="new-password" placeholder="••••••••"/>
-        <Button type="submit" variant="outline" className="mt-2">Sign Up</Button>
+        <div className="grid gap-1"><Label htmlFor="name">Full Name</Label><Input id="name" name="name" type="text" placeholder="John Doe" required autoComplete="name" value={name} onChange={e => setName(e.target.value)} /></div>
+        <div className="grid gap-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" placeholder="m@example.com" required autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
+        <PasswordInput name="password" label="Password" required autoComplete="new-password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
+        <Button type="submit" variant="outline" className="mt-2" disabled={loading}>{loading ? "Signing up..." : "Sign Up"}</Button>
       </div>
     </form>
   );
 }
 
 // CONTAINER for the forms to handle state switching
-function AuthFormContainer() {
+function AuthFormContainer({ onSignIn, onSignUp, loading, error }: { onSignIn?: (data: { email: string; password: string }) => Promise<void>; onSignUp?: (data: { name: string; email: string; password: string }) => Promise<void>; loading?: boolean; error?: string | null }) {
     const [isSignIn, setIsSignIn] = useState(true);
     return (
         <div className="mx-auto grid w-[350px] gap-2">
@@ -158,7 +173,8 @@ function AuthFormContainer() {
             <div className="flex justify-center mb-4">
                 <img src="/logo.jpeg" alt="Link Logo" className="w-20 h-20 rounded-lg object-cover" />
             </div>
-            {isSignIn ? <SignInForm /> : <SignUpForm />}
+            {isSignIn ? <SignInForm onSignIn={onSignIn} loading={loading} /> : <SignUpForm onSignUp={onSignUp} loading={loading} />}
+            {error && <div className="text-red-500 text-center mt-2">{error}</div>}
             <div className="text-center text-sm">
                 {isSignIn ? "Don't have an account?" : "Already have an account?"}{" "}
                 <Button variant="link" className="pl-1 text-foreground" onClick={() => setIsSignIn(!isSignIn)}>
@@ -181,12 +197,12 @@ function AuthFormContainer() {
 interface AuthUIProps {
     image?: {
         src: string;
-        alt: string; // alt is kept for semantic prop naming, but not used in bg-image
+        alt: string;
     };
-    quote?: {
-        text: string;
-        author: string;
-    }
+    onSignIn?: (data: { email: string; password: string }) => Promise<void>;
+    onSignUp?: (data: { name: string; email: string; password: string }) => Promise<void>;
+    loading?: boolean;
+    error?: string | null;
 }
 
 const defaultImage = {
@@ -196,7 +212,7 @@ const defaultImage = {
 
 const defaultQuote = null; // Remove the quote
 
-export function AuthUI({ image = defaultImage, quote = defaultQuote }: AuthUIProps) {
+export function AuthUI({ image = defaultImage, onSignIn, onSignUp, loading, error }: AuthUIProps) {
   return (
     <div className="w-full min-h-screen flex items-center justify-center">
       <style>{`
@@ -208,7 +224,7 @@ export function AuthUI({ image = defaultImage, quote = defaultQuote }: AuthUIPro
 
       {/* Only the Form, no right column */}
       <div className="flex h-screen items-center justify-center p-6 md:h-auto md:p-0 md:py-12 w-full">
-        <AuthFormContainer />
+        <AuthFormContainer onSignIn={onSignIn} onSignUp={onSignUp} loading={loading} error={error} />
       </div>
     </div>
   );

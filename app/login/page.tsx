@@ -45,10 +45,6 @@ export default function LoginPage() {
 
   // Render AuthUI with injected logic (will need to pass these to the forms inside AuthUI)
   return (
-    <>
-      <AuthUI />
-      {/* Optionally show error below the form */}
-      {error && <div className="text-red-500 text-center mt-4">{error}</div>}
-    </>
+    <AuthUI onSignIn={handleSignIn} onSignUp={handleSignUp} loading={loading} error={error} />
   );
 } 

@@ -20,6 +20,7 @@ import {
   UserCog,
   UserSearch,
   ShoppingCart,
+  Wallet2,
   BookOpen,
   Calendar,
 } from "lucide-react";
@@ -276,14 +277,14 @@ export function SessionNavBar() {
                     <div className="flex flex-col gap-1 mt-2">
                       <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
                         <BookOpen className="h-4 w-4" />
-                        {!isCollapsed && <p className="ml-2 text-sm font-medium">Resource Library</p>}
+                        {!isCollapsed && <p className="ml-2 text-sm font-medium">Resources</p>}
                       </div>
                       <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
                         <Calendar className="h-4 w-4" />
                         {!isCollapsed && <p className="ml-2 text-sm font-medium">Calendar</p>}
                       </div>
                       <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
-                        <ShoppingCart className="h-4 w-4" />
+                        <Wallet2 className="h-4 w-4" />
                         {!isCollapsed && <p className="ml-2 text-sm font-medium">Wallet</p>}
                       </div>
                     </div>
