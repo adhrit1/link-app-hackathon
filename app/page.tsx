@@ -143,8 +143,11 @@ export default function Home() {
     { title: "On Campus", blurb: "Explore campus facilities and services." },
   ];
   return (
-    <div className="ml-24 mt-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-900">Home</h1>
+    <div className="ml-24 mt-8 relative">
+      <div className="flex items-center justify-between mb-8 pr-8">
+        <h1 className="text-3xl font-bold text-gray-900">Home</h1>
+        <img src="/berkley-logo.jpeg" alt="Berkley Logo" className="w-20 h-20 rounded-full object-cover" />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
         {boxes.map(({ title, blurb, onboard }) => (
           title === "Enrolment" ? (
