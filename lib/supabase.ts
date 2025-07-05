@@ -1,72 +1,72 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 
-// Define cookie options type
-type CookieOptions = {
-  name?: string;
-  value?: string;
-  maxAge?: number;
-  domain?: string;
-  path?: string;
-  expires?: string;
-  httpOnly?: boolean;
-  secure?: boolean;
-  sameSite?: 'strict' | 'lax' | 'none';
-};
+// Check if environment variables are properly set
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  {
-    cookies: {
-      get(name) {
-        const cookies = document.cookie.split(';').map(cookie => cookie.trim());
-        const cookie = cookies.find(cookie => cookie.startsWith(`${name}=`));
-        return cookie ? cookie.split('=')[1] : undefined;
-      },
-      set(name, value, options) {
-        // Format the cookie string
-        let cookie = `${name}=${value}`;
-        
-        if (options.expires) {
-          cookie += `; expires=${options.expires}`;
+// Only create client if both URL and key are provided
+let supabase;
+if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'your-supabase-url-here') {
+  try {
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+    console.log('✅ Supabase client initialized successfully');
+  } catch (error) {
+    console.error('❌ Error initializing Supabase client:', error);
+    supabase = null;
+  }
+} else {
+  console.warn('⚠️  Supabase credentials not configured - using mock client');
+  supabase = null;
+}
+
+// Mock Supabase client for development with all required methods
+export const mockSupabase = {
+  auth: {
+    getSession: async () => ({ data: { session: null }, error: null }),
+    getUser: async () => ({ data: { user: null }, error: null }),
+    signInWithPassword: async () => ({ data: { user: null }, error: null }),
+    signUp: async () => ({ data: { user: null }, error: null }),
+    signOut: async () => ({ error: null }),
+    onAuthStateChange: (callback: (event: string, session: any) => void) => {
+      // Return a mock subscription object
+      return {
+        data: {
+          subscription: {
+            unsubscribe: () => {
+              // Mock unsubscribe function
+            }
+          }
         }
-        if (options.path) {
-          cookie += `; path=${options.path}`;
-        }
-        if (options.domain) {
-          cookie += `; domain=${options.domain}`;
-        }
-        if (options.secure) {
-          cookie += '; secure';
-        }
-        if (options.sameSite) {
-          cookie += `; samesite=${options.sameSite}`;
-        }
-        
-        document.cookie = cookie;
-      },
-      remove(name, options) {
-        // To remove a cookie, set its expiration date to the past
-        const cookieOptions = {
-          ...options,
-          expires: new Date(0).toUTCString()
-        };
-        this.set(name, '', cookieOptions);
-      }
+      };
     }
   }
-);
+};
+
+// Export the actual client or mock client
+export const supabaseClient = supabase || mockSupabase;
 
 // Helper function to check if user is logged in
 export const isUserLoggedIn = async () => {
-  const { data } = await supabase.auth.getSession();
-  return !!data.session;
+  if (!supabase) return false;
+  try {
+    const { data } = await supabase.auth.getSession();
+    return !!data.session;
+  } catch (error) {
+    console.error('Error checking login status:', error);
+    return false;
+  }
 };
 
 // Helper function to get current user
 export const getCurrentUser = async () => {
-  const { data } = await supabase.auth.getUser();
-  return data?.user;
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    return data.user;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
 }; 

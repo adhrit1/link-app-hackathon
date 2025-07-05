@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthUI } from "@/components/ui/auth-ui";
-import { supabase } from "@/lib/supabase";
+import { supabaseClient } from "@/lib/supabase";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function SignupPage() {
@@ -22,29 +22,28 @@ export default function SignupPage() {
   async function handleSignUp({ name, email, password }: { name: string; email: string; password: string }) {
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-    } else {
-      router.replace("/");
-    }
-  }
-
-  async function handleSignIn({ email, password }: { email: string; password: string }) {
-    setLoading(true);
-    setError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-    } else {
-      router.replace("/");
+    
+    try {
+      if (supabaseClient?.auth?.signUp) {
+        const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name } } });
+        if (error) {
+          setError(error.message);
+        } else {
+          router.replace("/");
+        }
+      } else {
+        setError("Authentication service not available");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
+      console.error("Sign up error:", err);
+    } finally {
+      setLoading(false);
     }
   }
 
   // Render AuthUI with injected logic (will need to pass these to the forms inside AuthUI)
   return (
-    <AuthUI onSignIn={handleSignIn} onSignUp={handleSignUp} loading={loading} error={error} />
+    <AuthUI onSignUp={handleSignUp} loading={loading} error={error} />
   );
 } 

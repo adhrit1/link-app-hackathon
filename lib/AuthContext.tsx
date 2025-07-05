@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
-import { supabase } from "./supabase";
+import { supabaseClient } from "./supabase";
 
 type AuthContextType = {
   user: User | null;
@@ -24,14 +24,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       
       try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error("Error in auth.getSession:", error);
-          return;
+        // Check if auth methods are available
+        if (supabaseClient?.auth?.getSession) {
+          const { data, error } = await supabaseClient.auth.getSession();
+          if (error) {
+            console.error("Error in auth.getSession:", error);
+            return;
+          }
+          
+          setSession(data.session);
+          setUser(data.session?.user ?? null);
+        } else {
+          console.warn("Supabase auth methods not available");
         }
-        
-        setSession(data.session);
-        setUser(data.session?.user ?? null);
       } catch (error) {
         console.error("Error loading user session:", error);
       } finally {
@@ -45,26 +50,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let subscription: { unsubscribe: () => void } | null = null;
     
     try {
-      const { data } = supabase.auth.onAuthStateChange(
-        (event, session) => {
-          setSession(session);
-          setUser(session?.user ?? null);
-          setIsLoading(false);
-        }
-      );
-      subscription = data.subscription;
+      // Check if onAuthStateChange method is available
+      if (supabaseClient?.auth?.onAuthStateChange) {
+        const { data } = supabaseClient.auth.onAuthStateChange(
+          (event, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            setIsLoading(false);
+          }
+        );
+        subscription = data.subscription;
+      } else {
+        console.warn("Supabase onAuthStateChange not available");
+      }
     } catch (error) {
       console.error("Error setting up auth state change listener:", error);
     }
 
     return () => {
-      subscription?.unsubscribe();
+      if (subscription?.unsubscribe) {
+        subscription.unsubscribe();
+      }
     };
   }, []);
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      if (supabaseClient?.auth?.signOut) {
+        await supabaseClient.auth.signOut();
+      } else {
+        console.warn("Supabase signOut method not available");
+      }
     } catch (error) {
       console.error("Error signing out:", error);
     }
