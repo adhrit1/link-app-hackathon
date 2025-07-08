@@ -17,6 +17,7 @@ import {
   User,
   Brain,
   Activity,
+  DollarSign,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/AuthContext"
@@ -162,6 +163,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Dashboard",
       url: "/",
       icon: Home,
+    },
+    {
+      title: "Student Wallet",
+      url: "/modules/wallet",
+      icon: DollarSign,
     },
     {
       title: "Profile",

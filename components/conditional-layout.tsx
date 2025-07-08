@@ -36,7 +36,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen w-full">
       <SessionNavBar />
-      <div className="flex-1 flex flex-col w-full">
+      <div className="flex-1 flex flex-col w-full ml-12">
         {children}
       </div>
     </div>

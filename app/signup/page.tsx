@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthUI } from "@/components/ui/auth-ui";
-import { supabaseClient } from "@/lib/supabase";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function SignupPage() {
@@ -18,22 +17,17 @@ export default function SignupPage() {
     return null;
   }
 
-  // Custom form handlers to inject into AuthUI
+  // Fake signup handler - accepts any credentials
   async function handleSignUp({ name, email, password }: { name: string; email: string; password: string }) {
     setLoading(true);
     setError(null);
     
     try {
-      if (supabaseClient?.auth?.signUp) {
-        const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name } } });
-        if (error) {
-          setError(error.message);
-        } else {
-          router.replace("/");
-        }
-      } else {
-        setError("Authentication service not available");
-      }
+      // Simulate loading
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Fake successful signup - redirect to dashboard
+      router.replace("/");
     } catch (err) {
       setError("An unexpected error occurred");
       console.error("Sign up error:", err);
@@ -42,8 +36,27 @@ export default function SignupPage() {
     }
   }
 
-  // Render AuthUI with injected logic (will need to pass these to the forms inside AuthUI)
+  // Fake login handler - accepts any credentials
+  async function handleSignIn({ email, password }: { email: string; password: string }) {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Simulate loading
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Fake successful login - redirect to dashboard
+      router.replace("/");
+    } catch (err) {
+      setError("An unexpected error occurred");
+      console.error("Sign in error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Render AuthUI with fake authentication
   return (
-    <AuthUI onSignUp={handleSignUp} loading={loading} error={error} />
+    <AuthUI onSignUp={handleSignUp} onSignIn={handleSignIn} loading={loading} error={error} />
   );
 } 
