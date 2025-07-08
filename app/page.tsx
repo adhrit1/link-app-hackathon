@@ -136,7 +136,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { addNotification } = useNotifications();
   const router = useRouter();
 
@@ -157,7 +157,7 @@ export default function Home() {
 
         // Check cache first
         const cachedData = cache.get('user-home-data');
-        if (cachedData && user) {
+        if (cachedData) {
           setUserData(cachedData);
           setIsLoading(false);
           return;
@@ -174,9 +174,7 @@ export default function Home() {
         setUserData(data);
         
         // Cache the data
-        if (user) {
-          cache.set('user-home-data', data);
-        }
+        cache.set('user-home-data', data);
 
         // Show success notification
         showSuccess('Welcome back!', 'Your dashboard is ready.');
@@ -194,32 +192,12 @@ export default function Home() {
       }
     };
 
-    if (user) {
-      loadUserData();
-    } else {
-      setIsLoading(false);
-    }
-  }, [user, addNotification, pageLoadTimer]);
+    // Load data regardless of auth state for demo
+    loadUserData();
+  }, [pageLoadTimer]);
 
-  // Define the boxes and their blurbs
-  const boxes = [
-    { title: "Community", blurb: "Connect with student groups, organizations, and events.", module: "community", onboard: true },
-    { title: "Housing", blurb: "Find student housing and roommates.", module: "dorm", onboard: true },
-    { title: "Enrollment", blurb: "Sign up for courses and manage your registration.", module: "enrollment", onboard: true },
-    { title: "Digital Report Card", blurb: "Track your grades, GPA, and academic progress.", module: "grades", onboard: false },
-    { title: "Jobs & Internships", blurb: "Find on-campus and part-time job opportunities.", module: "job", onboard: false },
-    { title: "Dining & Food", blurb: "Discover the best dining options on and around campus.", module: "dining", onboard: false },
-    { title: "Health & Fitness", blurb: "Find fitness facilities and wellness resources.", module: "health", onboard: false },
-    { title: "Academic Support", blurb: "Get help with studies, tutoring, Canvas integration, and Ed Discussion.", module: "academic-support", onboard: false },
-    { title: "Campus Safety", blurb: "Stay informed about campus safety and emergency resources.", module: "safety", onboard: false },
-    { title: "Transportation", blurb: "Plan your commute and find transportation options.", module: "transportation", onboard: false },
-    { title: "Financial Management", blurb: "Budget tracking, financial aid, and payment plans.", module: "financial", onboard: false },
-    { title: "Marketplace", blurb: "Buy, sell, and trade with fellow students.", module: "marketplace", onboard: false },
-    { title: "Quick Cash", blurb: "Find gigs and quick money opportunities.", module: "quick-cash", onboard: false },
-  ];
-
-  // Loading state
-  if (isLoading) {
+  // Show loading state only if we're still loading and don't have data
+  if (isLoading && !userData) {
     return (
       <div className="ml-24 mt-8 relative">
         <div className="flex items-center justify-between mb-8 pr-8">
@@ -240,99 +218,139 @@ export default function Home() {
     );
   }
 
-  // Error state
-  if (error) {
+  // Show error state
+  if (error && !userData) {
     return (
       <div className="ml-24 mt-8 relative">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center max-w-md mx-auto">
-            <StatusIndicator 
-              status="error" 
-              message="Something went wrong" 
-              className="mb-6"
-            />
-            <p className="text-gray-600 mb-6">{error}</p>
-            <Button 
-              onClick={() => window.location.reload()} 
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Try Again
+        <EmptyState
+          title="Failed to load dashboard"
+          description={error}
+          action={
+            <Button onClick={() => window.location.reload()}>
+              Try again
             </Button>
-          </div>
-        </div>
+          }
+        />
       </div>
     );
   }
 
+  // Show main dashboard
   return (
     <div className="ml-24 mt-8 relative">
       <div className="flex items-center justify-between mb-8 pr-8">
         <div className="flex items-center space-x-4">
-          <h1 className="text-3xl font-bold text-gray-900">
-            <SrOnly>Home Dashboard</SrOnly>
-            Home
-          </h1>
-          {userData && (
-            <StatusIndicator 
-              status="success" 
-              message="All systems operational" 
-            />
-          )}
-        </div>
-        <div className="relative">
-          {/* Original JPEG Graduation Cap Puzzle Piece Insignia */}
-          <img 
-            src="/berkley-logo.jpeg" 
-            alt="UC Berkeley Logo" 
-            className="h-16 w-16 rounded-full object-cover"
-            loading="lazy"
-          />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome back, {userData?.user?.name || 'Student'}!
+            </h1>
+            <p className="text-gray-600">Here's what's happening today</p>
+          </div>
         </div>
       </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
-        {boxes.map(({ title, blurb, module, onboard }) => (
-          module ? (
-            <KeyboardIndicator key={title}>
-              <Link href={`/modules/${module}`} className="w-full h-full cursor-pointer text-left focus:outline-none">
-              <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
-                <CardHeader className="relative flex-shrink-0">
-                  {onboard && (
-                      <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">
-                        Onboard now
-                      </Badge>
-                  )}
-                  <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
-                  <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  {/* Content area - no progress bars */}
-                </CardContent>
-              </Card>
-            </Link>
-            </KeyboardIndicator>
-          ) : (
-            <KeyboardIndicator key={title}>
-              <button className="w-full h-full cursor-pointer text-left focus:outline-none" type="button">
-              <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
-                <CardHeader className="relative flex-shrink-0">
-                  {onboard && (
-                      <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">
-                        Onboard now
-                      </Badge>
-                  )}
-                  <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
-                  <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  {/* Content area - no progress bars */}
-                </CardContent>
-              </Card>
-            </button>
-            </KeyboardIndicator>
-          )
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 pr-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Courses Enrolled</CardTitle>
+            <Database className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{userData?.quick_stats?.courses_enrolled || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              This semester
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Events This Week</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{userData?.quick_stats?.events_this_week || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Campus activities
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Notifications</CardTitle>
+            <Check className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{userData?.quick_stats?.unread_notifications || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Unread messages
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">GPA</CardTitle>
+            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{userData?.quick_stats?.gpa || 'N/A'}</div>
+            <p className="text-xs text-muted-foreground">
+              Current semester
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Modules Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pr-8">
+        {userData?.modules && Object.entries(userData.modules).map(([key, module]: [string, any]) => (
+          <Link key={key} href={`/modules/${key}`}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <span>{module.title}</span>
+                  <Badge variant={module.status === 'ready' ? 'default' : 'secondary'}>
+                    {module.status}
+                  </Badge>
+                </CardTitle>
+                <CardDescription>{module.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Progress: {module.progress}%
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
+
+      {/* Recent Activity */}
+      {userData?.recent_activity && userData.recent_activity.length > 0 && (
+        <div className="mt-8 pr-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {userData.recent_activity.map((activity: any, index: number) => (
+                  <div key={index} className="flex items-center space-x-4">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div>
+                      <p className="text-sm font-medium">{activity.title}</p>
+                      <p className="text-sm text-muted-foreground">{activity.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 } 
