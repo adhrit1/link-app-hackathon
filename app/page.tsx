@@ -140,8 +140,14 @@ export default function Home() {
   const { addNotification } = useNotifications();
   const router = useRouter();
 
-  // Performance monitoring
-  const pageLoadTimer = performanceMonitor.startTimer('home-page-load');
+  // Performance monitoring - moved to useEffect
+  const [pageLoadTimer, setPageLoadTimer] = useState<(() => void) | null>(null);
+
+  useEffect(() => {
+    // Initialize performance timer
+    const timer = performanceMonitor.startTimer('home-page-load');
+    setPageLoadTimer(() => timer);
+  }, []);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -181,7 +187,10 @@ export default function Home() {
         showError('Loading failed', errorMessage);
       } finally {
         setIsLoading(false);
-        pageLoadTimer();
+        // Call timer if available
+        if (pageLoadTimer) {
+          pageLoadTimer();
+        }
       }
     };
 
@@ -286,40 +295,40 @@ export default function Home() {
           module ? (
             <KeyboardIndicator key={title}>
               <Link href={`/modules/${module}`} className="w-full h-full cursor-pointer text-left focus:outline-none">
-                <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
-                  <CardHeader className="relative flex-shrink-0">
-                    {onboard && (
+              <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
+                <CardHeader className="relative flex-shrink-0">
+                  {onboard && (
                       <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">
                         Onboard now
                       </Badge>
-                    )}
-                    <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
-                    <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    {/* Content area - no progress bars */}
-                  </CardContent>
-                </Card>
-              </Link>
+                  )}
+                  <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
+                  <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  {/* Content area - no progress bars */}
+                </CardContent>
+              </Card>
+            </Link>
             </KeyboardIndicator>
           ) : (
             <KeyboardIndicator key={title}>
               <button className="w-full h-full cursor-pointer text-left focus:outline-none" type="button">
-                <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
-                  <CardHeader className="relative flex-shrink-0">
-                    {onboard && (
+              <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
+                <CardHeader className="relative flex-shrink-0">
+                  {onboard && (
                       <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">
                         Onboard now
                       </Badge>
-                    )}
-                    <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
-                    <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    {/* Content area - no progress bars */}
-                  </CardContent>
-                </Card>
-              </button>
+                  )}
+                  <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
+                  <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  {/* Content area - no progress bars */}
+                </CardContent>
+              </Card>
+            </button>
             </KeyboardIndicator>
           )
         ))}
