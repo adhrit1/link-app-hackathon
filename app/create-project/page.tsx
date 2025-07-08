@@ -180,7 +180,12 @@ const generateComparisonData = (metricId: string) => {
           const completion1 = site1.completion.split('-')[0];
           const completion2 = site2.completion.split('-')[0];
           const timingMatch = completion1 === completion2 ? 20 : 0;
-          const baseScore = Math.random() * 30 + 20; // Add some randomness for debt scoring
+          // Use deterministic hash instead of Math.random() to avoid hydration errors
+          const hash = (site1.name + site2.name).split('').reduce((a, b) => {
+            a = ((a << 5) - a) + b.charCodeAt(0);
+            return a & a;
+          }, 0);
+          const baseScore = (Math.abs(hash) % 30) + 20; // Deterministic but varied scoring
           similarity = Math.max(0, Math.min(100, baseScore + sameLender + timingMatch));
           break;
           

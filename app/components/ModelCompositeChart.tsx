@@ -24,9 +24,13 @@ const generateFinancialData = () => {
   const endDate = new Date("2025-06-30")
   
   for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
-    // Base values with some randomization
-    const baseRevenue = 25.0 + (Math.random() * 2 - 1)  // Around $25M with ±$1M variation
-    const baseProfit = 8.8 + (Math.random() * 1 - 0.5)  // Around $8.8M with ±$0.5M variation
+    // Use deterministic values based on date to avoid hydration errors
+    const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24))
+    const variation1 = (dayOfYear * 7) % 200 / 100 - 1  // -1 to 1 range
+    const variation2 = (dayOfYear * 11) % 100 / 100 - 0.5  // -0.5 to 0.5 range
+    
+    const baseRevenue = 25.0 + variation1  // Around $25M with ±$1M variation
+    const baseProfit = 8.8 + variation2  // Around $8.8M with ±$0.5M variation
     
     data.push({
       date: date.toISOString().split('T')[0],

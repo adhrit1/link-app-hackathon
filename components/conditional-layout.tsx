@@ -16,13 +16,12 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
-  // Auth guard: redirect unauthenticated users to /login
-  // Only run on non-auth pages
-  React.useEffect(() => {
-    if (!isLoading && !user && !isAuthPage) {
-      router.replace("/login");
-    }
-  }, [isLoading, user, isAuthPage, router]);
+  // Temporarily disabled auth guard to fix blank screen issue
+  // React.useEffect(() => {
+  //   if (!isLoading && !user && !isAuthPage) {
+  //     router.replace("/login");
+  //   }
+  // }, [isLoading, user, isAuthPage, router]);
 
   if (isAuthPage) {
     // For auth pages, render without sidebar

@@ -279,14 +279,26 @@ export function SessionNavBar() {
                         <BookOpen className="h-4 w-4" />
                         {!isCollapsed && <p className="ml-2 text-sm font-medium">Resources</p>}
                       </div>
-                      <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
+                      <Link
+                        href="/calendar"
+                        className={cn(
+                          "flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary",
+                          pathname === "/calendar" && "bg-muted text-blue-600"
+                        )}
+                      >
                         <Calendar className="h-4 w-4" />
                         {!isCollapsed && <p className="ml-2 text-sm font-medium">Calendar</p>}
-                      </div>
-                      <div className="flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary cursor-pointer">
+                      </Link>
+                      <Link
+                        href="/wallet"
+                        className={cn(
+                          "flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary",
+                          pathname === "/wallet" && "bg-muted text-blue-600"
+                        )}
+                      >
                         <Wallet2 className="h-4 w-4" />
                         {!isCollapsed && <p className="ml-2 text-sm font-medium">Wallet</p>}
-                      </div>
+                      </Link>
                     </div>
                   </div>
                 </ScrollArea>

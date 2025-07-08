@@ -14,6 +14,8 @@ import {
   Plus,
   FolderKanban,
   MessageSquare,
+  User,
+  Brain,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/AuthContext"
@@ -161,6 +163,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: Home,
     },
     {
+      title: "Profile",
+      url: "/profile",
+      icon: User,
+    },
+    {
+      title: "AI Agents",
+      url: "/agents",
+      icon: Brain,
+    },
+    {
       title: "Resource Library",
       url: "/resource-library",
     },
@@ -221,3 +233,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </Sidebar>
   )
 }
+      <SidebarContent>
+        <NavProjects projects={dashboardProjects} />
+        <NavMain items={dashboardNavMain} />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  )
+}
+

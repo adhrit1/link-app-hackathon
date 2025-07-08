@@ -125,53 +125,63 @@ const chartConfig = {
 export default function Home() {
   // Define the boxes and their blurbs
   const boxes = [
-    { title: "Community", blurb: "Connect with student groups and events.", module: "community", onboard: true },
+    { title: "Community", blurb: "Connect with student groups, organizations, and events.", module: "community", onboard: true },
     { title: "Housing", blurb: "Find student housing and roommates.", module: "dorm", onboard: true },
-    { title: "Enrolment", blurb: "Sign up for courses and manage your registration.", module: "enrollment" },
-    { title: "Grades", blurb: "View your academic performance and grades.", module: "grades" },
-    { title: "Ed Discussion", blurb: "Join class discussions and ask questions.", module: "ed-discussion" },
-    { title: "Canvas", blurb: "Access course materials and assignments.", module: "canvas" },
-    { title: "Job", blurb: "Find on-campus and part-time job opportunities.", module: "job", onboard: true },
-    { title: "Health", blurb: "Access health resources and support.", module: "health", onboard: true },
-    { title: "Safety", blurb: "Stay informed about campus safety.", module: "safety", onboard: true },
-    { title: "Academic Support", blurb: "Get help with your studies and tutoring.", module: "academic-support", onboard: true },
-    { title: "Transportation", blurb: "Plan your commute and campus transport.", module: "transportation", onboard: true },
-    { title: "Personal Health", blurb: "Track your wellness and appointments.", module: "health", onboard: true },
-    { title: "Student Wallet", blurb: "Manage your student finances and payments.", module: "wallet", onboard: true },
-    { title: "Marketplace", blurb: "Buy, sell, or trade with other students.", module: "marketplace", onboard: true },
-    { title: "Quick Cash", blurb: "Find quick ways to earn money on campus.", module: "quick-cash", onboard: true },
-    { title: "On Campus", blurb: "Explore campus facilities and services.", module: "on-campus" },
+    { title: "Enrollment", blurb: "Sign up for courses and manage your registration.", module: "enrollment", onboard: true },
+    { title: "Digital Report Card", blurb: "Track your grades, GPA, and academic progress.", module: "grades", onboard: false },
+    { title: "Jobs & Internships", blurb: "Find on-campus and part-time job opportunities.", module: "job", onboard: false },
+    { title: "Dining & Food", blurb: "Discover the best dining options on and around campus.", module: "dining", onboard: false },
+    { title: "Health & Fitness", blurb: "Find fitness facilities and wellness resources.", module: "health", onboard: false },
+    { title: "Academic Support", blurb: "Get help with studies, tutoring, Canvas integration, and Ed Discussion.", module: "academic-support", onboard: false },
+    { title: "Campus Safety", blurb: "Stay informed about campus safety and emergency resources.", module: "safety", onboard: false },
+    { title: "Transportation", blurb: "Plan your commute and find transportation options.", module: "transportation", onboard: false },
+    { title: "Financial Management", blurb: "Budget tracking, financial aid, and payment plans.", module: "financial", onboard: false },
+    { title: "Marketplace", blurb: "Buy, sell, and trade with fellow students.", module: "marketplace", onboard: false },
+    { title: "Quick Cash", blurb: "Find gigs and quick money opportunities.", module: "quick-cash", onboard: false },
   ];
   return (
     <div className="ml-24 mt-8 relative">
       <div className="flex items-center justify-between mb-8 pr-8">
         <h1 className="text-3xl font-bold text-gray-900">Home</h1>
-        <img src="/berkley-logo.jpeg" alt="Berkley Logo" className="w-20 h-20 rounded-full object-cover" />
+        <div className="relative">
+          {/* Original JPEG Graduation Cap Puzzle Piece Insignia */}
+          <img 
+            src="/berkley-logo.jpeg" 
+            alt="Original Graduation Cap Puzzle Piece Insignia" 
+            className="h-16 w-16 rounded-full object-cover"
+          />
+        </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
         {boxes.map(({ title, blurb, module, onboard }) => (
           module ? (
             <Link href={`/modules/${module}`} key={title} className="w-full h-full cursor-pointer text-left focus:outline-none">
-              <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
-                <CardHeader className="relative">
+              <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
+                <CardHeader className="relative flex-shrink-0">
                   {onboard && (
                     <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">Onboard now</Badge>
                   )}
-                  <CardTitle>{title}</CardTitle>
-                  <CardDescription>{blurb}</CardDescription>
+                  <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
+                  <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
                 </CardHeader>
+                <CardContent className="flex-grow">
+                  {/* Content area - no progress bars */}
+                </CardContent>
               </Card>
             </Link>
           ) : (
             <button key={title} className="w-full h-full cursor-pointer text-left focus:outline-none" type="button">
-              <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
-                <CardHeader className="relative">
+              <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
+                <CardHeader className="relative flex-shrink-0">
                   {onboard && (
                     <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">Onboard now</Badge>
                   )}
-                  <CardTitle>{title}</CardTitle>
-                  <CardDescription>{blurb}</CardDescription>
+                  <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
+                  <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
                 </CardHeader>
+                <CardContent className="flex-grow">
+                  {/* Content area - no progress bars */}
+                </CardContent>
               </Card>
             </button>
           )

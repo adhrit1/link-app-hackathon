@@ -6,9 +6,22 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Only create client if both URL and key are provided
+// Helper function to validate URL
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Only create client if both URL and key are provided and URL is valid
 let supabase;
-if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'your-supabase-url-here') {
+if (supabaseUrl && supabaseAnonKey && 
+    supabaseUrl !== 'your-supabase-url-here' && 
+    supabaseUrl !== 'your-supabase-url/' &&
+    isValidUrl(supabaseUrl)) {
   try {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
     console.log('✅ Supabase client initialized successfully');
@@ -17,7 +30,7 @@ if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'your-supabase-url-here') 
     supabase = null;
   }
 } else {
-  console.warn('⚠️  Supabase credentials not configured - using mock client');
+  console.warn('⚠️  Supabase credentials not configured or invalid - using mock client');
   supabase = null;
 }
 

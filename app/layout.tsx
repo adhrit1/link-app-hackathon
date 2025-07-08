@@ -5,6 +5,8 @@ import { ConditionalLayout } from "@/components/conditional-layout";
 import { AuthProvider } from "@/lib/AuthContext";
 import { ConditionalChatModal } from "./components/ConditionalChatModal";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { AgentSystemProvider } from "@/components/AgentSystem";
+import { ConditionalBearAgent } from "@/components/ConditionalBearAgent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Link",
-  description: "Link is for college students",
+  title: "LINK APP - UC Berkeley Student Hub",
+  description: "Your comprehensive student experience platform",
 };
 
 export default function RootLayout({
@@ -28,14 +30,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
           <SidebarProvider>
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
+            <AgentSystemProvider>
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+              <ConditionalBearAgent />
+            </AgentSystemProvider>
             <ConditionalChatModal />
           </SidebarProvider>
         </AuthProvider>

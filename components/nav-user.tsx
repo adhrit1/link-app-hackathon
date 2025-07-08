@@ -7,6 +7,7 @@ import {
   ChevronsUpDown,
   CreditCard,
   Sparkles,
+  User,
 } from "lucide-react"
 
 import {
@@ -22,17 +23,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
 import { useAuth } from "@/lib/AuthContext"
 import { LogoutButton } from "./logout-button"
+import Link from "next/link"
 
 export function NavUser() {
-  const { isMobile } = useSidebar()
   const { user, isLoading } = useAuth()
   const [initials, setInitials] = useState("--")
   
@@ -56,17 +51,13 @@ export function NavUser() {
 
   if (isLoading) {
     return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg">
-            <div className="h-8 w-8 rounded-lg bg-muted animate-pulse" />
-            <div className="grid flex-1 gap-1">
-              <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-              <div className="h-3 w-32 rounded bg-muted animate-pulse" />
-            </div>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
+      <div className="flex items-center gap-2 p-2">
+        <div className="h-8 w-8 rounded-lg bg-muted animate-pulse" />
+        <div className="grid flex-1 gap-1">
+          <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+          <div className="h-3 w-32 rounded bg-muted animate-pulse" />
+        </div>
+      </div>
     )
   }
 
@@ -75,70 +66,68 @@ export function NavUser() {
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{userName}</span>
-                <span className="truncate text-xs">{userEmail}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{userName}</span>
-                  <span className="truncate text-xs">{userEmail}</span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles className="mr-2 h-4 w-4" />
-                <span>Upgrade to Pro</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck className="mr-2 h-4 w-4" />
-                <span>Account</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard className="mr-2 h-4 w-4" />
-                <span>Billing</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell className="mr-2 h-4 w-4" />
-                <span>Notifications</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <LogoutButton />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors">
+          <Avatar className="h-8 w-8 rounded-lg">
+            <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+          </Avatar>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">{userName}</span>
+            <span className="truncate text-xs">{userEmail}</span>
+          </div>
+          <ChevronsUpDown className="ml-auto size-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-56 rounded-lg"
+        align="end"
+        sideOffset={4}
+      >
+        <DropdownMenuLabel className="p-0 font-normal">
+          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{userName}</span>
+              <span className="truncate text-xs">{userEmail}</span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link href="/profile">
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Sparkles className="mr-2 h-4 w-4" />
+            <span>Upgrade to Pro</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <BadgeCheck className="mr-2 h-4 w-4" />
+            <span>Account</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <CreditCard className="mr-2 h-4 w-4" />
+            <span>Billing</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Bell className="mr-2 h-4 w-4" />
+            <span>Notifications</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <LogoutButton />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
