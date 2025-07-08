@@ -22,20 +22,127 @@ if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'your-supabase-url-here') 
 }
 
 // Mock Supabase client for development with all required methods
+let authStateChangeCallback: ((event: string, session: any) => void) | null = null;
+
 export const mockSupabase = {
   auth: {
-    getSession: async () => ({ data: { session: null }, error: null }),
-    getUser: async () => ({ data: { user: null }, error: null }),
-    signInWithPassword: async () => ({ data: { user: null }, error: null }),
-    signUp: async () => ({ data: { user: null }, error: null }),
-    signOut: async () => ({ error: null }),
+    getSession: async () => {
+      // Check localStorage for stored session
+      if (typeof window !== 'undefined') {
+        const storedSession = localStorage.getItem('mock-session');
+        if (storedSession) {
+          return { data: { session: JSON.parse(storedSession) }, error: null };
+        }
+      }
+      return { data: { session: null }, error: null };
+    },
+    getUser: async () => {
+      // Check localStorage for stored session
+      if (typeof window !== 'undefined') {
+        const storedSession = localStorage.getItem('mock-session');
+        if (storedSession) {
+          const session = JSON.parse(storedSession);
+          return { data: { user: session.user }, error: null };
+        }
+      }
+      return { data: { user: null }, error: null };
+    },
+    signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
+      // Fake login - always succeed with any email/password
+      const mockUser = {
+        id: 'mock-user-id',
+        email: email,
+        user_metadata: {
+          name: email.split('@')[0] || 'User'
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      const mockSession = {
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: 'bearer',
+        user: mockUser
+      };
+      
+      // Store session in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mock-session', JSON.stringify(mockSession));
+      }
+      
+      // Trigger auth state change
+      if (authStateChangeCallback) {
+        setTimeout(() => {
+          authStateChangeCallback('SIGNED_IN', mockSession);
+        }, 100);
+      }
+      
+      return { data: { user: mockUser, session: mockSession }, error: null };
+    },
+    signUp: async ({ email, password, options }: { email: string; password: string; options?: any }) => {
+      // Fake signup - always succeed with any email/password
+      const mockUser = {
+        id: 'mock-user-id',
+        email: email,
+        user_metadata: {
+          name: options?.data?.name || email.split('@')[0] || 'User'
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      const mockSession = {
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: 'bearer',
+        user: mockUser
+      };
+      
+      // Store session in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mock-session', JSON.stringify(mockSession));
+      }
+      
+      // Trigger auth state change
+      if (authStateChangeCallback) {
+        setTimeout(() => {
+          authStateChangeCallback('SIGNED_IN', mockSession);
+        }, 100);
+      }
+      
+      return { data: { user: mockUser, session: mockSession }, error: null };
+    },
+    signOut: async () => {
+      // Clear session from localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('mock-session');
+      }
+      
+      // Trigger auth state change
+      if (authStateChangeCallback) {
+        setTimeout(() => {
+          authStateChangeCallback('SIGNED_OUT', null);
+        }, 100);
+      }
+      
+      return { error: null };
+    },
     onAuthStateChange: (callback: (event: string, session: any) => void) => {
+      // Store the callback for later use
+      authStateChangeCallback = callback;
+      
       // Return a mock subscription object
       return {
         data: {
           subscription: {
             unsubscribe: () => {
-              // Mock unsubscribe function
+              // Clear the callback
+              authStateChangeCallback = null;
             }
           }
         }

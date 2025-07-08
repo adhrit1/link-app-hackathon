@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, GraduationCap, Bot, CheckCircle } from "lucide-react";
+import { Loader2, GraduationCap, Bot, CheckCircle, Home, Briefcase, Users, Utensils, Heart, Shield, Bus, Wallet, Store, DollarSign } from "lucide-react";
 
 interface Question {
   id: number;
@@ -19,20 +20,115 @@ interface AIQuestion {
   type: string;
 }
 
-interface CourseRecommendation {
-  code: string;
+interface Recommendation {
   title: string;
   description: string;
-  units: number;
-  department: string;
-  professor: string;
-  rmp_rating: number;
-  matching_reviews: string[];
-  grade_distribution: any;
-  requirements_fulfilled: string[];
+  score?: number;
+  why_perfect?: string[];
+  student_quotes?: any[];
+  [key: string]: any;
 }
 
-export default function EnrolmentPage() {
+// Module configuration
+const MODULE_CONFIG = {
+  enrollment: {
+    title: "Course Enrollment",
+    description: "AI-powered course recommendations based on your preferences",
+    icon: GraduationCap,
+    color: "text-green-600",
+    bgColor: "bg-green-50"
+  },
+  dorm: {
+    title: "Dorm & Housing",
+    description: "Find your perfect housing match with AI insights",
+    icon: Home,
+    color: "text-blue-600",
+    bgColor: "bg-blue-50"
+  },
+  job: {
+    title: "Jobs & Internships",
+    description: "Discover opportunities that match your career goals",
+    icon: Briefcase,
+    color: "text-purple-600",
+    bgColor: "bg-purple-50"
+  },
+  clubs: {
+    title: "Student Organizations",
+    description: "Find clubs and organizations that match your interests",
+    icon: Users,
+    color: "text-orange-600",
+    bgColor: "bg-orange-50"
+  },
+  dining: {
+    title: "Dining & Food",
+    description: "Discover the best dining options on and around campus",
+    icon: Utensils,
+    color: "text-red-600",
+    bgColor: "bg-red-50"
+  },
+  health: {
+    title: "Health & Fitness",
+    description: "Find fitness facilities and wellness resources",
+    icon: Heart,
+    color: "text-pink-600",
+    bgColor: "bg-pink-50"
+  },
+  safety: {
+    title: "Campus Safety",
+    description: "Stay informed about campus safety and emergency resources",
+    icon: Shield,
+    color: "text-gray-600",
+    bgColor: "bg-gray-50"
+  },
+  transportation: {
+    title: "Transportation",
+    description: "Plan your commute and find transportation options",
+    icon: Bus,
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50"
+  },
+  financial: {
+    title: "Financial Management",
+    description: "Budget tracking, financial aid, and payment plans",
+    icon: Wallet,
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50"
+  },
+  community: {
+    title: "Community",
+    description: "Volunteer opportunities and student organizations",
+    icon: Users,
+    color: "text-cyan-600",
+    bgColor: "bg-cyan-50"
+  },
+  marketplace: {
+    title: "Marketplace",
+    description: "Buy, sell, and trade with fellow students",
+    icon: Store,
+    color: "text-amber-600",
+    bgColor: "bg-amber-50"
+  },
+  wallet: {
+    title: "Student Wallet",
+    description: "Digital ID, Bear Bucks, and payment management",
+    icon: Wallet,
+    color: "text-lime-600",
+    bgColor: "bg-lime-50"
+  },
+  "quick-cash": {
+    title: "Quick Cash",
+    description: "Find gigs and quick money opportunities",
+    icon: DollarSign,
+    color: "text-green-600",
+    bgColor: "bg-green-50"
+  }
+};
+
+export default function ModulePage() {
+  const params = useParams();
+  const moduleName = params.module as string;
+  const moduleConfig = MODULE_CONFIG[moduleName as keyof typeof MODULE_CONFIG];
+  
   const [currentStep, setCurrentStep] = useState(0);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [aiQuestions, setAiQuestions] = useState<AIQuestion[]>([]);
@@ -42,16 +138,18 @@ export default function EnrolmentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<'initial' | 'ai' | 'recommendations'>('initial');
-  const [recommendations, setRecommendations] = useState<CourseRecommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
   useEffect(() => {
-    loadQuestions();
-  }, []);
+    if (moduleName) {
+      loadQuestions();
+    }
+  }, [moduleName]);
 
   const loadQuestions = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/enrollment');
+      const response = await fetch(`/api/modules/${moduleName}`);
       if (!response.ok) {
         throw new Error('Failed to load questions');
       }
@@ -61,7 +159,7 @@ export default function EnrolmentPage() {
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading questions:', error);
-      setError('Failed to load enrollment questions');
+      setError('Failed to load questions');
       setIsLoading(false);
     }
   };
@@ -77,7 +175,6 @@ export default function EnrolmentPage() {
     if (currentStep < allQuestions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Submit current phase
       await submitCurrentPhase();
     }
   };
@@ -92,8 +189,7 @@ export default function EnrolmentPage() {
     setIsSubmitting(true);
     try {
       if (phase === 'initial') {
-        // Submit initial questions and get AI questions
-        const response = await fetch('/api/enrollment', {
+        const response = await fetch(`/api/modules/${moduleName}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -114,10 +210,9 @@ export default function EnrolmentPage() {
         setAiQuestions(data.ai_questions);
         setAllQuestions([...questions, ...data.ai_questions]);
         setPhase('ai');
-        setCurrentStep(questions.length); // Start at first AI question
+        setCurrentStep(questions.length);
       } else if (phase === 'ai') {
-        // Submit AI questions and get recommendations
-        const response = await fetch('/api/enrollment/ai-questions', {
+        const response = await fetch(`/api/modules/${moduleName}/ai-questions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -148,6 +243,7 @@ export default function EnrolmentPage() {
 
   const renderQuestion = (question: Question | AIQuestion) => {
     const isAIQuestion = 'id' in question && typeof question.id === 'string';
+    const IconComponent = moduleConfig?.icon || GraduationCap;
     
     return (
       <Card className="w-full max-w-2xl mx-auto">
@@ -160,7 +256,7 @@ export default function EnrolmentPage() {
               </>
             ) : (
               <>
-                <GraduationCap className="h-5 w-5 text-green-600" />
+                <IconComponent className={`h-5 w-5 ${moduleConfig?.color}`} />
                 <Badge variant="outline">Initial Question</Badge>
               </>
             )}
@@ -197,60 +293,87 @@ export default function EnrolmentPage() {
   };
 
   const renderRecommendations = () => {
+    const IconComponent = moduleConfig?.icon || CheckCircle;
+    
     return (
       <div className="w-full max-w-4xl mx-auto space-y-6">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-              <CardTitle className="text-2xl">Your Personalized Course Recommendations</CardTitle>
+              <IconComponent className={`h-6 w-6 ${moduleConfig?.color}`} />
+              <CardTitle className="text-2xl">Your Personalized {moduleConfig?.title} Recommendations</CardTitle>
             </div>
             <CardDescription>
-              Based on your preferences and AI analysis, here are the best courses for you
+              Based on your preferences and AI analysis, here are the best options for you
             </CardDescription>
           </CardHeader>
         </Card>
 
         <div className="grid gap-6">
-          {recommendations.map((course, index) => (
+          {recommendations.map((recommendation, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-xl">{course.code}: {course.title}</CardTitle>
+                    <CardTitle className="text-xl">{recommendation.title || recommendation.name || recommendation.code}</CardTitle>
                     <CardDescription className="mt-2">
-                      {course.department} • {course.units} units • Prof. {course.professor}
+                      {recommendation.description}
+                      {recommendation.department && ` • ${recommendation.department}`}
+                      {recommendation.units && ` • ${recommendation.units} units`}
+                      {recommendation.professor && ` • Prof. ${recommendation.professor}`}
+                      {recommendation.location && ` • ${recommendation.location}`}
                     </CardDescription>
                   </div>
-                  {course.rmp_rating && (
+                  {recommendation.score && (
                     <Badge variant="secondary">
-                      ⭐ {course.rmp_rating}/5.0 RMP
+                      Score: {recommendation.score}
+                    </Badge>
+                  )}
+                  {recommendation.rmp_rating && (
+                    <Badge variant="secondary">
+                      ⭐ {recommendation.rmp_rating}/5.0 RMP
                     </Badge>
                   )}
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 mb-4">{course.description}</p>
+                {recommendation.description && (
+                  <p className="text-gray-700 mb-4">{recommendation.description}</p>
+                )}
                 
-                {course.matching_reviews && course.matching_reviews.length > 0 && (
+                {recommendation.why_perfect && recommendation.why_perfect.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="font-semibold mb-2">Why this course matches you:</h4>
+                    <h4 className="font-semibold mb-2">Why this matches you:</h4>
                     <ul className="space-y-1">
-                      {course.matching_reviews.map((review, idx) => (
+                      {recommendation.why_perfect.map((reason, idx) => (
                         <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
                           <span className="text-green-500 mt-1">•</span>
-                          {review}
+                          {reason}
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
 
-                {course.requirements_fulfilled && course.requirements_fulfilled.length > 0 && (
+                {recommendation.student_quotes && recommendation.student_quotes.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Student Reviews:</h4>
+                    <div className="space-y-2">
+                      {recommendation.student_quotes.slice(0, 2).map((quote, idx) => (
+                        <div key={idx} className="bg-gray-50 p-3 rounded-lg">
+                          <p className="text-sm text-gray-700 italic">"{quote.quote}"</p>
+                          <p className="text-xs text-gray-500 mt-1">- {quote.source}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {recommendation.requirements_fulfilled && recommendation.requirements_fulfilled.length > 0 && (
                   <div className="mb-4">
                     <h4 className="font-semibold mb-2">Requirements fulfilled:</h4>
                     <div className="flex flex-wrap gap-2">
-                      {course.requirements_fulfilled.map((req, idx) => (
+                      {recommendation.requirements_fulfilled.map((req, idx) => (
                         <Badge key={idx} variant="outline" className="text-xs">
                           {req}
                         </Badge>
@@ -260,7 +383,11 @@ export default function EnrolmentPage() {
                 )}
 
                 <Button className="w-full">
-                  Enroll in {course.code}
+                  {moduleName === 'enrollment' ? `Enroll in ${recommendation.code}` : 
+                   moduleName === 'dorm' ? 'Apply for Housing' :
+                   moduleName === 'job' ? 'Apply Now' :
+                   moduleName === 'clubs' ? 'Join Organization' :
+                   'Learn More'}
                 </Button>
               </CardContent>
             </Card>
@@ -270,12 +397,22 @@ export default function EnrolmentPage() {
     );
   };
 
+  if (!moduleConfig) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Module not found</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading enrollment questions...</p>
+          <p>Loading {moduleConfig.title.toLowerCase()} questions...</p>
         </div>
       </div>
     );
@@ -294,7 +431,7 @@ export default function EnrolmentPage() {
 
   if (phase === 'recommendations') {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className={`min-h-screen ${moduleConfig.bgColor} py-8`}>
         <div className="container mx-auto px-4">
           {renderRecommendations()}
         </div>
@@ -304,14 +441,18 @@ export default function EnrolmentPage() {
 
   const currentQuestion = allQuestions[currentStep];
   const progress = ((currentStep + 1) / allQuestions.length) * 100;
+  const IconComponent = moduleConfig.icon;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className={`min-h-screen ${moduleConfig.bgColor} py-8`}>
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Course Enrollment</h1>
-          <p className="text-gray-600">AI-powered course recommendations based on your preferences</p>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <IconComponent className={`h-8 w-8 ${moduleConfig.color}`} />
+            <h1 className="text-3xl font-bold text-gray-900">{moduleConfig.title}</h1>
+          </div>
+          <p className="text-gray-600">{moduleConfig.description}</p>
         </div>
 
         {/* Progress Bar */}
@@ -322,7 +463,7 @@ export default function EnrolmentPage() {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+              className={`h-2 rounded-full transition-all duration-300 ${moduleConfig.color.replace('text-', 'bg-')}`}
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -346,6 +487,7 @@ export default function EnrolmentPage() {
           <Button
             onClick={handleNext}
             disabled={!answers[currentQuestion?.id] || isSubmitting}
+            className={moduleConfig.color.replace('text-', 'bg-').replace('-600', '-500')}
           >
             {isSubmitting ? (
               <>

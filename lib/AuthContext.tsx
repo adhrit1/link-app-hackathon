@@ -32,8 +32,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return;
           }
           
-          setSession(data.session);
-          setUser(data.session?.user ?? null);
+          // For mock client, check localStorage for session
+          if (!data.session && typeof window !== 'undefined') {
+            const storedSession = localStorage.getItem('mock-session');
+            if (storedSession) {
+              const parsedSession = JSON.parse(storedSession);
+              setSession(parsedSession);
+              setUser(parsedSession.user);
+            }
+          } else {
+            setSession(data.session);
+            setUser(data.session?.user ?? null);
+          }
         } else {
           console.warn("Supabase auth methods not available");
         }
@@ -54,6 +64,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (supabaseClient?.auth?.onAuthStateChange) {
         const { data } = supabaseClient.auth.onAuthStateChange(
           (event, session) => {
+            // For mock client, also store session in localStorage
+            if (session && typeof window !== 'undefined') {
+              localStorage.setItem('mock-session', JSON.stringify(session));
+            } else if (!session && typeof window !== 'undefined') {
+              localStorage.removeItem('mock-session');
+            }
+            
             setSession(session);
             setUser(session?.user ?? null);
             setIsLoading(false);
@@ -81,6 +98,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         console.warn("Supabase signOut method not available");
       }
+      
+      // Clear mock session from localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('mock-session');
+      }
+      
+      setSession(null);
+      setUser(null);
     } catch (error) {
       console.error("Error signing out:", error);
     }

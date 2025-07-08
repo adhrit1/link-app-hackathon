@@ -125,22 +125,22 @@ const chartConfig = {
 export default function Home() {
   // Define the boxes and their blurbs
   const boxes = [
-    { title: "Community", blurb: "Connect with student groups and events.", onboard: true },
-    { title: "Housing", blurb: "Find student housing and roommates.", onboard: true },
-    { title: "Enrolment", blurb: "Sign up for courses and manage your registration." },
-    { title: "Grades", blurb: "View your academic performance and grades." },
-    { title: "Ed Discussion", blurb: "Join class discussions and ask questions." },
-    { title: "Canvas", blurb: "Access course materials and assignments." },
-    { title: "Job", blurb: "Find on-campus and part-time job opportunities." },
-    { title: "Health", blurb: "Access health resources and support." },
-    { title: "Saftey", blurb: "Stay informed about campus safety." },
-    { title: "Academic Support", blurb: "Get help with your studies and tutoring." },
-    { title: "Transportation", blurb: "Plan your commute and campus transport." },
-    { title: "Personal Health", blurb: "Track your wellness and appointments." },
-    { title: "Student Wallet", blurb: "Manage your student finances and payments." },
-    { title: "Marketplace", blurb: "Buy, sell, or trade with other students." },
-    { title: "Quick Cash", blurb: "Find quick ways to earn money on campus." },
-    { title: "On Campus", blurb: "Explore campus facilities and services." },
+    { title: "Community", blurb: "Connect with student groups and events.", module: "community", onboard: true },
+    { title: "Housing", blurb: "Find student housing and roommates.", module: "dorm", onboard: true },
+    { title: "Enrolment", blurb: "Sign up for courses and manage your registration.", module: "enrollment" },
+    { title: "Grades", blurb: "View your academic performance and grades.", module: "grades" },
+    { title: "Ed Discussion", blurb: "Join class discussions and ask questions.", module: "ed-discussion" },
+    { title: "Canvas", blurb: "Access course materials and assignments.", module: "canvas" },
+    { title: "Job", blurb: "Find on-campus and part-time job opportunities.", module: "job", onboard: true },
+    { title: "Health", blurb: "Access health resources and support.", module: "health", onboard: true },
+    { title: "Safety", blurb: "Stay informed about campus safety.", module: "safety", onboard: true },
+    { title: "Academic Support", blurb: "Get help with your studies and tutoring.", module: "academic-support", onboard: true },
+    { title: "Transportation", blurb: "Plan your commute and campus transport.", module: "transportation", onboard: true },
+    { title: "Personal Health", blurb: "Track your wellness and appointments.", module: "health", onboard: true },
+    { title: "Student Wallet", blurb: "Manage your student finances and payments.", module: "wallet", onboard: true },
+    { title: "Marketplace", blurb: "Buy, sell, or trade with other students.", module: "marketplace", onboard: true },
+    { title: "Quick Cash", blurb: "Find quick ways to earn money on campus.", module: "quick-cash", onboard: true },
+    { title: "On Campus", blurb: "Explore campus facilities and services.", module: "on-campus" },
   ];
   return (
     <div className="ml-24 mt-8 relative">
@@ -149,9 +149,9 @@ export default function Home() {
         <img src="/berkley-logo.jpeg" alt="Berkley Logo" className="w-20 h-20 rounded-full object-cover" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
-        {boxes.map(({ title, blurb, onboard }) => (
-          title === "Enrolment" ? (
-            <Link href="/enrolment" key={title} className="w-full h-full cursor-pointer text-left focus:outline-none">
+        {boxes.map(({ title, blurb, module, onboard }) => (
+          module ? (
+            <Link href={`/modules/${module}`} key={title} className="w-full h-full cursor-pointer text-left focus:outline-none">
               <Card className="border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white">
                 <CardHeader className="relative">
                   {onboard && (
