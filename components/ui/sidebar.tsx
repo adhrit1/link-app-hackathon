@@ -23,6 +23,7 @@ import {
   Wallet2,
   BookOpen,
   Calendar,
+  Activity,
 } from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -109,8 +110,8 @@ const variants = {
 };
 
 const transitionProps = {
-  type: "tween",
-  ease: "easeOut",
+  type: "tween" as const,
+  ease: "easeOut" as const,
   duration: 0.2,
   staggerChildren: 0.1,
 };
@@ -271,6 +272,20 @@ export function SessionNavBar() {
                       <motion.li variants={variants}>
                         {!isCollapsed && (
                           <p className="ml-2 text-sm font-medium">Dashboard</p>
+                        )}
+                      </motion.li>
+                    </Link>
+                    <Link
+                      href="/ux-analysis"
+                      className={cn(
+                        "flex h-8 w-full flex-row items-center rounded-md px-2 py-1.5 transition hover:bg-muted hover:text-primary",
+                        pathname === "/ux-analysis" && "bg-muted text-blue-600"
+                      )}
+                    >
+                      <Activity className="h-4 w-4" />
+                      <motion.li variants={variants}>
+                        {!isCollapsed && (
+                          <p className="ml-2 text-sm font-medium">UX Analysis</p>
                         )}
                       </motion.li>
                     </Link>

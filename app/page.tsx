@@ -35,6 +35,16 @@ import { useRouter } from "next/navigation"
 import { TextShimmer } from "@/components/ui/text-shimmer"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { 
+  CardSkeleton, 
+  LoadingSpinner, 
+  FullPageLoader,
+  StatusIndicator 
+} from "@/components/ui/loading-states"
+import { useNotifications, showSuccess, showError } from "@/components/ui/notifications"
+import { apiCall, withRetry } from "@/lib/error-handling"
+import { cache, performanceMonitor } from "@/lib/performance"
+import { KeyboardIndicator, SrOnly } from "@/components/ui/accessibility"
 
 // Define type for API brand rankings response
 type APIBrandRanking = {
@@ -123,6 +133,65 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const { user } = useAuth();
+  const { addNotification } = useNotifications();
+  const router = useRouter();
+
+  // Performance monitoring
+  const pageLoadTimer = performanceMonitor.startTimer('home-page-load');
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Check cache first
+        const cachedData = cache.get('user-home-data');
+        if (cachedData && user) {
+          setUserData(cachedData);
+          setIsLoading(false);
+          return;
+        }
+
+        // Load fresh data with retry
+        const data = await withRetry(async () => {
+          const response = await apiCall('/api/user/home-data', {
+            method: 'GET',
+          });
+          return response;
+        });
+
+        setUserData(data);
+        
+        // Cache the data
+        if (user) {
+          cache.set('user-home-data', data);
+        }
+
+        // Show success notification
+        showSuccess('Welcome back!', 'Your dashboard is ready.');
+        
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
+        setError(errorMessage);
+        showError('Loading failed', errorMessage);
+      } finally {
+        setIsLoading(false);
+        pageLoadTimer();
+      }
+    };
+
+    if (user) {
+      loadUserData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user, addNotification, pageLoadTimer]);
+
   // Define the boxes and their blurbs
   const boxes = [
     { title: "Community", blurb: "Connect with student groups, organizations, and events.", module: "community", onboard: true },
@@ -139,51 +208,119 @@ export default function Home() {
     { title: "Marketplace", blurb: "Buy, sell, and trade with fellow students.", module: "marketplace", onboard: false },
     { title: "Quick Cash", blurb: "Find gigs and quick money opportunities.", module: "quick-cash", onboard: false },
   ];
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="ml-24 mt-8 relative">
+        <div className="flex items-center justify-between mb-8 pr-8">
+          <div className="flex items-center space-x-4">
+            <LoadingSpinner size="lg" />
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Loading...</h1>
+              <p className="text-gray-600">Preparing your dashboard</p>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="ml-24 mt-8 relative">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center max-w-md mx-auto">
+            <StatusIndicator 
+              status="error" 
+              message="Something went wrong" 
+              className="mb-6"
+            />
+            <p className="text-gray-600 mb-6">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="ml-24 mt-8 relative">
       <div className="flex items-center justify-between mb-8 pr-8">
-        <h1 className="text-3xl font-bold text-gray-900">Home</h1>
+        <div className="flex items-center space-x-4">
+          <h1 className="text-3xl font-bold text-gray-900">
+            <SrOnly>Home Dashboard</SrOnly>
+            Home
+          </h1>
+          {userData && (
+            <StatusIndicator 
+              status="success" 
+              message="All systems operational" 
+            />
+          )}
+        </div>
         <div className="relative">
           {/* Original JPEG Graduation Cap Puzzle Piece Insignia */}
           <img 
             src="/berkley-logo.jpeg" 
-            alt="Original Graduation Cap Puzzle Piece Insignia" 
+            alt="UC Berkeley Logo" 
             className="h-16 w-16 rounded-full object-cover"
+            loading="lazy"
           />
         </div>
       </div>
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto pr-8">
         {boxes.map(({ title, blurb, module, onboard }) => (
           module ? (
-            <Link href={`/modules/${module}`} key={title} className="w-full h-full cursor-pointer text-left focus:outline-none">
-              <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
-                <CardHeader className="relative flex-shrink-0">
-                  {onboard && (
-                    <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">Onboard now</Badge>
-                  )}
-                  <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
-                  <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  {/* Content area - no progress bars */}
-                </CardContent>
-              </Card>
-            </Link>
+            <KeyboardIndicator key={title}>
+              <Link href={`/modules/${module}`} className="w-full h-full cursor-pointer text-left focus:outline-none">
+                <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
+                  <CardHeader className="relative flex-shrink-0">
+                    {onboard && (
+                      <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">
+                        Onboard now
+                      </Badge>
+                    )}
+                    <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
+                    <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-grow">
+                    {/* Content area - no progress bars */}
+                  </CardContent>
+                </Card>
+              </Link>
+            </KeyboardIndicator>
           ) : (
-            <button key={title} className="w-full h-full cursor-pointer text-left focus:outline-none" type="button">
-              <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
-                <CardHeader className="relative flex-shrink-0">
-                  {onboard && (
-                    <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">Onboard now</Badge>
-                  )}
-                  <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
-                  <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  {/* Content area - no progress bars */}
-                </CardContent>
-              </Card>
-            </button>
+            <KeyboardIndicator key={title}>
+              <button className="w-full h-full cursor-pointer text-left focus:outline-none" type="button">
+                <Card className="h-48 border border-gray-200 shadow-md hover:shadow-lg transition-shadow bg-white flex flex-col">
+                  <CardHeader className="relative flex-shrink-0">
+                    {onboard && (
+                      <Badge variant="default" className="absolute -top-8 -right-3 shadow-md z-10">
+                        Onboard now
+                      </Badge>
+                    )}
+                    <CardTitle className="text-lg font-semibold text-gray-900">{title}</CardTitle>
+                    <CardDescription className="text-sm text-gray-600">{blurb}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-grow">
+                    {/* Content area - no progress bars */}
+                  </CardContent>
+                </Card>
+              </button>
+            </KeyboardIndicator>
           )
         ))}
       </div>

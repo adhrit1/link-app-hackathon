@@ -16,6 +16,7 @@ import {
   MessageSquare,
   User,
   Brain,
+  Activity,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/AuthContext"
@@ -173,6 +174,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: Brain,
     },
     {
+      title: "UX Analysis",
+      url: "/ux-analysis",
+      icon: Activity,
+    },
+    {
       title: "Resource Library",
       url: "/resource-library",
     },
@@ -222,17 +228,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent>
-        <NavProjects projects={dashboardProjects} />
-        <NavMain items={dashboardNavMain} />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
-  )
-}
       <SidebarContent>
         <NavProjects projects={dashboardProjects} />
         <NavMain items={dashboardNavMain} />
