@@ -18,6 +18,7 @@ import { QuickCashDashboard } from "./QuickCashDashboard";
 import { ReportCardDashboard } from "./ReportCardDashboard";
 import { OnCampusJobsDashboard } from "./OnCampusJobsDashboard";
 import { NecessaryDocumentsDashboard } from "./NecessaryDocumentsDashboard";
+import { RoommateQuiz } from "./RoommateQuiz";
 
 // Module configuration
 const MODULE_CONFIG = {
@@ -28,7 +29,7 @@ const MODULE_CONFIG = {
     bgColor: "bg-green-50"
   },
   "freshman-flow": {
-    title: "Freshman Flow",
+    title: "Freshmen Flow",
     description: "AI onboarding with dorm matching",
     color: "text-teal-600",
     bgColor: "bg-teal-50"
@@ -36,6 +37,12 @@ const MODULE_CONFIG = {
   dorm: {
     title: "Dorm & Housing",
     description: "Find your perfect housing match with AI insights",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50"
+  },
+  "roommate-search": {
+    title: "Roommate Matching",
+    description: "Find compatible roommates based on lifestyle",
     color: "text-blue-600",
     bgColor: "bg-blue-50"
   },
@@ -126,7 +133,7 @@ const MODULE_CONFIG = {
 };
 
 // Quiz modules that use the quiz/AI/recommendation flow
-const QUIZ_MODULES = ["enrollment", "freshman-flow", "dorm", "job", "community"];
+const QUIZ_MODULES = ["enrollment", "freshman-flow", "dorm", "job", "community", "roommate-search"];
 
 export default function ModulePage() {
   const params = useParams();
@@ -154,6 +161,8 @@ export default function ModulePage() {
       return <DormQuiz moduleConfig={moduleConfig} />;
     case "job":
       return <JobQuiz moduleConfig={moduleConfig} />;
+    case "roommate-search":
+      return <RoommateQuiz moduleConfig={moduleConfig} />;
     case "community":
       return <CommunityQuiz moduleConfig={moduleConfig} />;
     

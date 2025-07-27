@@ -29,9 +29,9 @@ import Link from "next/link"
 const modules = [
   {
     key: "freshman-flow",
-    title: "Freshman Flow",
+    title: "Freshmen Flow",
     description: "Onboard now and get matched with the best dorms",
-    icon: Heart,
+    icon: HomeIcon,
     color: "bg-teal-500",
     href: "/modules/freshman-flow",
     status: "available"
@@ -98,6 +98,15 @@ const modules = [
     color: "bg-indigo-500",
     href: "/modules/academic-support",
     status: "available"
+  },
+  {
+    key: "roommate-search",
+    title: "Roommate Matching",
+    description: "Find compatible roommates based on lifestyle",
+    icon: HomeIcon,
+    color: "bg-blue-600",
+    href: "/modules/roommate-search",
+    status: "available",
   },
   {
     key: "health",
@@ -189,7 +198,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Link href="/modules/freshman-flow">
             <Button variant="default" className="w-full h-16 flex flex-col items-center justify-center gap-2">
-              <Heart className="h-6 w-6" />
+              <HomeIcon className="h-6 w-6" />
               <span className="text-sm">Onboard Now</span>
             </Button>
           </Link>

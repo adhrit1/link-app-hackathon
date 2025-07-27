@@ -5,12 +5,12 @@ export async function POST(request: NextRequest) {
   const recommendations = [
     {
       id: 'unit1',
-      title: 'Unit 1 - Blackwell Hall',
+      title: 'Unit 1',
       description: 'Modern dorm with central location and great social scene.',
       pros: ['Close to classes', 'Updated facilities', 'Active community'],
       cons: ['Higher cost', 'Can be noisy'],
       reddit_posts: [
-        { title: 'Is Blackwell worth the price?', upvotes: 42, comments: 8 },
+        { title: 'Is Unit 1 worth the price?', upvotes: 42, comments: 8 },
         { title: 'My experience living in Unit 1', upvotes: 30, comments: 5 }
       ]
     },
