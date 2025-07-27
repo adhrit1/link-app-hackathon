@@ -49,7 +49,7 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
   const loadQuestions = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/onboarding');
+      const res = await fetch('/api/onboarding/questions');
       if (!res.ok) throw new Error('Failed to load questions');
       const data = await res.json();
       setQuestions(data.questions);
@@ -90,7 +90,7 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
     setIsSubmitting(true);
     try {
       if (phase === 'initial') {
-        const res = await fetch('/api/onboarding', {
+        const res = await fetch('/api/onboarding/questions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
