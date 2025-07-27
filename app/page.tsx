@@ -28,6 +28,15 @@ import Link from "next/link"
 // Full module list, always shown
 const modules = [
   {
+    key: "freshman-flow",
+    title: "Freshman Flow",
+    description: "Onboard now and get matched with the best dorms",
+    icon: Heart,
+    color: "bg-teal-500",
+    href: "/modules/freshman-flow",
+    status: "available"
+  },
+  {
     key: "marketplace",
     title: "Marketplace",
     description: "Student-to-Student, Student-to-Real World, Second Hand, Lost & Found",
@@ -177,12 +186,18 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/calendar">
-              <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center gap-2">
-                <Calendar className="h-6 w-6" />
-                <span className="text-sm">Calendar</span>
-              </Button>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Link href="/modules/freshman-flow">
+            <Button variant="default" className="w-full h-16 flex flex-col items-center justify-center gap-2">
+              <Heart className="h-6 w-6" />
+              <span className="text-sm">Onboard Now</span>
+            </Button>
+          </Link>
+          <Link href="/calendar">
+            <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center gap-2">
+              <Calendar className="h-6 w-6" />
+              <span className="text-sm">Calendar</span>
+            </Button>
             </Link>
             <Link href="/modules/wallet">
               <Button variant="outline" className="w-full h-16 flex flex-col items-center justify-center gap-2">

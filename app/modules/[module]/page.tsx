@@ -5,6 +5,7 @@ import { EnrollmentQuiz } from "./EnrollmentQuiz";
 import { DormQuiz } from "./DormQuiz";
 import { JobQuiz } from "./JobQuiz";
 import { CommunityQuiz } from "./CommunityQuiz";
+import { OnboardingQuiz } from "./OnboardingQuiz";
 import { AcademicSupportDashboard } from "./AcademicSupportDashboard";
 import { HealthDashboard } from "./HealthDashboard";
 import { SafetyDashboard } from "./SafetyDashboard";
@@ -25,6 +26,12 @@ const MODULE_CONFIG = {
     description: "AI-powered course recommendations based on your preferences",
     color: "text-green-600",
     bgColor: "bg-green-50"
+  },
+  "freshman-flow": {
+    title: "Freshman Flow",
+    description: "AI onboarding with dorm matching",
+    color: "text-teal-600",
+    bgColor: "bg-teal-50"
   },
   dorm: {
     title: "Dorm & Housing",
@@ -119,7 +126,7 @@ const MODULE_CONFIG = {
 };
 
 // Quiz modules that use the quiz/AI/recommendation flow
-const QUIZ_MODULES = ["enrollment", "dorm", "job", "community"];
+const QUIZ_MODULES = ["enrollment", "freshman-flow", "dorm", "job", "community"];
 
 export default function ModulePage() {
   const params = useParams();
@@ -141,6 +148,8 @@ export default function ModulePage() {
     // Quiz modules - use quiz/AI/recommendation flow
     case "enrollment":
       return <EnrollmentQuiz moduleConfig={moduleConfig} />;
+    case "freshman-flow":
+      return <OnboardingQuiz moduleConfig={moduleConfig} />;
     case "dorm":
       return <DormQuiz moduleConfig={moduleConfig} />;
     case "job":
