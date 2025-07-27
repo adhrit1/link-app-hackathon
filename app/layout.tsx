@@ -1,3 +1,6 @@
+
+-1
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -20,7 +23,6 @@ export const metadata: Metadata = {
   description: "Your comprehensive student experience platform",
   keywords: ["UC Berkeley", "student", "university", "campus", "academic"],
   authors: [{ name: "UC Berkeley" }],
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
   openGraph: {
     title: "LINK APP - UC Berkeley Student Hub",
@@ -33,6 +35,11 @@ export const metadata: Metadata = {
     title: "LINK APP - UC Berkeley Student Hub",
     description: "Your comprehensive student experience platform",
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -60,5 +67,4 @@ export default function RootLayout({
         </AuthProvider>
       </body>
     </html>
-  );
-}
+    )}
