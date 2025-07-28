@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DormQuiz } from "./DormQuiz";
 import { OnboardingQuiz } from "./OnboardingQuiz";
 import { RoommateQuiz } from "./RoommateQuiz";
-
+import { useAgentSystem } from "@/components/AgentSystem";
 interface ModuleConfig {
   title: string;
   description: string;
@@ -16,6 +16,20 @@ interface ModuleConfig {
 
 export function HousingDashboard({ moduleConfig }: { moduleConfig: ModuleConfig }) {
   const [tab, setTab] = useState<"housing" | "freshman" | "roommate">("housing");
+  const [isFreshman, setIsFreshman] = useState(false);
+  const { processRequest } = useAgentSystem();
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const profile = await processRequest({ agentId: 'profiler', action: 'get_profile' });
+        setIsFreshman(profile?.year === 'Freshman');
+      } catch (e) {
+        console.error('Failed to load profile', e);
+      }
+    };
+    loadProfile();
+  }, [processRequest]);
 
   const renderContent = () => {
     switch (tab) {
@@ -60,7 +74,9 @@ export function HousingDashboard({ moduleConfig }: { moduleConfig: ModuleConfig 
             </Button>
             <Button
               variant={tab === "freshman" ? "default" : "outline"}
-              onClick={() => setTab("freshman")}
+              onClick={() => isFreshman && setTab("freshman")}
+              disabled={!isFreshman}
+              className={!isFreshman ? "opacity-50" : ""}
             >
               Freshmen Flow
             </Button>

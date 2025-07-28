@@ -17,9 +17,11 @@ interface Recommendation {
   id: string;
   title: string;
   description: string;
+  score: number;
+  walking_time?: string;
   pros: string[];
   cons: string[];
-  reddit_posts: Array<{ title: string; upvotes: number; comments: number }>;
+  reddit_posts: Array<{ title: string; url: string }>;
 }
 
 interface ModuleConfig {
@@ -37,12 +39,12 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [phase, setPhase] = useState<'initial' | 'ai' | 'recommendations'>('initial');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [rankings, setRankings] = useState<string[]>([]);
+  const [selectedDorm, setSelectedDorm] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const saved = localStorage.getItem('freshmanFlowResults');
     if (saved) {
       setRecommendations(JSON.parse(saved));
@@ -51,8 +53,11 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
     } else {
       loadQuestions();
     }
+  }, []);*/
+  useEffect(() => {
+    loadQuestions();          // always start with a new quiz
   }, []);
-
+  
   const loadQuestions = async () => {
     try {
       setIsLoading(true);
@@ -129,6 +134,9 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
         if (!res.ok) throw new Error('Failed to submit AI questions');
         const data = await res.json();
         setRecommendations(data.recommendations);
+        if (data.recommendations && data.recommendations.length > 0) {
+          setSelectedDorm(data.recommendations[0].id);
+        }
         localStorage.setItem('freshmanFlowResults', JSON.stringify(data.recommendations));
         setPhase('recommendations');
       }
@@ -140,11 +148,6 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
     }
   };
 
-  const toggleRanking = (id: string) => {
-    setRankings(prev =>
-      prev.includes(id) ? prev.filter(r => r !== id) : prev.length < 3 ? [...prev, id] : prev
-    );
-  };
 
   const renderQuestion = (q: Question) => {
     const isAI = typeof q.id === 'string';
@@ -183,67 +186,85 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
     );
   };
 
-  const renderRecommendations = () => (
-    <div className="space-y-6">
-      <Card className="w-full max-w-3xl mx-auto">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Home className="h-5 w-5 text-teal-600" />
-            <CardTitle>Dorm Recommendations</CardTitle>
-          </div>
-          <CardDescription>Select up to three favorites</CardDescription>
-        </CardHeader>
-      </Card>
-      {recommendations.map(rec => {
-        const rank = rankings.indexOf(rec.id);
-        return (
-          <Card key={rec.id} className="w-full max-w-3xl mx-auto">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>{rec.title}</CardTitle>
-                  <CardDescription>{rec.description}</CardDescription>
+  const renderRecommendations = () => {
+    const selected =
+      recommendations.find((r) => r.id === selectedDorm) || recommendations[0];
+
+    return (
+      <div className="md:flex gap-6">
+        <div className="md:w-1/3 space-y-2 mb-6 md:mb-0">
+          {recommendations.map((rec, idx) => {
+            const isSelected = rec.id === selected.id;
+            return (
+              <div
+                key={rec.id}
+                className={`border rounded-md p-3 cursor-pointer flex justify-between items-center ${isSelected ? 'bg-teal-50 border-teal-500' : 'bg-white'}`}
+                onClick={() => setSelectedDorm(rec.id)}
+              >
+                <div className="flex items-center gap-2">
+                  {idx === 0 && (
+                    <span className="text-green-600">
+                      ✓
+                    </span>
+                  )}
+                  <span className="font-medium">{rec.title}</span>
                 </div>
-                {rank > -1 && <Badge variant="secondary">Rank {rank + 1}</Badge>}
+                <Badge variant="secondary">{rec.score}% Match</Badge>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div>
-                <h4 className="font-semibold">Pros</h4>
-                <ul className="list-disc list-inside text-sm">
-                  {rec.pros.map((p, i) => <li key={i}>{p}</li>)}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold">Cons</h4>
-                <ul className="list-disc list-inside text-sm">
-                  {rec.cons.map((c, i) => <li key={i}>{c}</li>)}
-                </ul>
-              </div>
-              {rec.reddit_posts.length > 0 && (
-                <div>
-                  <h4 className="font-semibold">Reddit Mentions</h4>
-                  <ul className="list-disc list-inside text-sm">
-                    {rec.reddit_posts.map((p, i) => (
-                      <li key={i}>{p.title} (↑{p.upvotes})</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <Button onClick={() => toggleRanking(rec.id)} variant="outline">
-                {rank > -1 ? 'Unrank' : rankings.length < 3 ? 'Select as Top Choice' : 'Ranking Full'}
-              </Button>
-            </CardContent>
-          </Card>
-        );
-      })}
-      {rankings.length > 0 && (
-        <div className="text-center">
-          <Badge variant="secondary">Top choice: {rankings[0]}</Badge>
+            );
+          })}
         </div>
-      )}
-    </div>
-  );
+        <div className="md:flex-1 space-y-4">
+          <h2 className="text-2xl font-bold">{selected.title}</h2>
+          <p className="font-semibold">{selected.description}</p>
+          <div className="flex items-center gap-3">
+            {selected.walking_time && (
+              <span className="text-sm text-gray-600">{selected.walking_time}</span>
+            )}
+            <Badge variant="secondary">{selected.score}% Match</Badge>
+          </div>
+          {selected.reddit_posts.length > 0 && (
+            <div>
+              <h4 className="font-semibold mb-1">Reviews from Users</h4>
+              <div className="flex flex-wrap gap-2">
+                {selected.reddit_posts.map((p, i) => (
+                  <Badge key={i} variant="outline" asChild>
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {p.title}
+                    </a>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          {selected.pros.length > 0 && (
+            <div>
+              <h4 className="font-semibold">Pros</h4>
+              <ul className="list-disc list-inside text-sm">
+                {selected.pros.map((p, i) => (
+                  <li key={i}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {selected.cons.length > 0 && (
+            <div>
+              <h4 className="font-semibold">Cons</h4>
+              <ul className="list-disc list-inside text-sm">
+                {selected.cons.map((c, i) => (
+                  <li key={i}>{c}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   if (isLoading) {
     return (

@@ -1,38 +1,75 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { computeDormScore, getDormPosts, getPros, getCons } from '@/lib/reddit';
 
 export async function POST(request: NextRequest) {
-  await request.json();
+  const body = await request.json();
+  const answers: Record<number, string> = {};
+  if (body && Array.isArray(body.responses)) {
+    for (const r of body.responses) {
+      const id = parseInt(r.question_id, 10);
+      if (!isNaN(id)) answers[id] = r.answer;
+    }
+  }
   const recommendations = [
     {
       id: 'unit1',
       title: 'Unit 1',
       description: 'Modern dorm with central location and great social scene.',
-      pros: ['Close to classes', 'Updated facilities', 'Active community'],
-      cons: ['Higher cost', 'Can be noisy'],
-      reddit_posts: [
-        { title: 'Is Unit 1 worth the price?', upvotes: 42, comments: 8 },
-        { title: 'My experience living in Unit 1', upvotes: 30, comments: 5 }
-      ]
+      score: computeDormScore('Unit 1', answers),
+      walking_time: '8 min walk',
+      pros: getPros('Unit 1'),
+      cons: getCons('Unit 1'),
+      reddit_posts: getDormPosts('Unit 1')
+    },
+    {
+      id: 'unit2',
+      title: 'Unit 2',
+      description: 'Lively dorm close to campus with a strong social vibe.',
+      score: computeDormScore('Unit 2', answers),
+      walking_time: '10 min walk',
+      pros: getPros('Unit 2'),
+      cons: getCons('Unit 2'),
+      reddit_posts: getDormPosts('Unit 2'),
+    },
+    {
+      id: 'unit3',
+      title: 'Unit 3',
+      description: 'Popular southside dorm known for an active community.',
+      score: computeDormScore('Unit 3', answers),
+      walking_time: '12 min walk',
+      pros: getPros('Unit 3'),
+      cons: getCons('Unit 3'),
+      reddit_posts: getDormPosts('Unit 3'),
     },
     {
       id: 'foothill',
       title: 'Foothill',
       description: 'Quiet dorm near engineering with beautiful views.',
-      pros: ['Quiet environment', 'Near engineering buildings'],
-      cons: ['Far from central campus', 'Limited dining options'],
-      reddit_posts: [
-        { title: 'Foothill vs Unit 2?', upvotes: 25, comments: 4 }
-      ]
+      score: computeDormScore('Foothill', answers),
+      walking_time: '18 min walk',
+      pros: getPros('Foothill'),
+      cons: getCons('Foothill'),
+      reddit_posts: getDormPosts('Foothill')
     },
     {
       id: 'clark_kerr',
       title: 'Clark Kerr Campus',
       description: 'Large complex with its own dining and strong community.',
-      pros: ['Lots of green space', 'Tight-knit community'],
-      cons: ['Long walk to main campus'],
-      reddit_posts: [
-        { title: 'Clark Kerr advice for freshmen', upvotes: 37, comments: 6 }
-      ]
+      score: computeDormScore('Clark Kerr', answers),
+      walking_time: '15 min walk',
+      pros: getPros('Clark Kerr'),
+      cons: getCons('Clark Kerr'),
+      reddit_posts: getDormPosts('Clark Kerr')
+    },
+    {
+      id: 'blackwell',
+      title: 'Blackwell Hall',
+      description: 'New high-rise dorm right next to campus and Downtown.',
+      score: computeDormScore('Blackwell', answers),
+      walking_time: '5 min walk',
+      pros: getPros('Blackwell'),
+      cons: getCons('Blackwell'),
+      reddit_posts: getDormPosts('Blackwell'),
     }
   ];
   return NextResponse.json({ recommendations });

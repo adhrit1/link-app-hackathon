@@ -4,21 +4,21 @@ export async function GET(request: NextRequest) {
   const questions = [
     {
       id: 1,
-      question: 'Which part of campus do you prefer to live in?',
+      question: "What's your typical sleep schedule?",
       type: 'multiple_choice',
-      options: ['Northside', 'Southside', 'Westside', 'No preference']
+      options: ['Early to bed', 'Night owl', 'Flexible']
     },
     {
       id: 2,
-      question: 'Do you value a social atmosphere or a quiet environment?',
+      question: 'How social are you?',
       type: 'multiple_choice',
-      options: ['Social', 'Quiet', 'Balanced']
+      options: ['Very social', 'Moderately social', 'Prefer quiet']
     },
     {
       id: 3,
-      question: 'What is your monthly housing budget?',
+      question: "What's your noise tolerance?",
       type: 'multiple_choice',
-      options: ['<$1000', '$1000-$1500', '$1500-$2000', '$2000+']
+      options: ['Need silence', 'Can handle some noise', 'Noisy environment is fine']
     },
     {
       id: 4,
