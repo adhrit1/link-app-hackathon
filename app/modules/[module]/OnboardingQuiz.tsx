@@ -43,7 +43,14 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadQuestions();
+    const saved = localStorage.getItem('freshmanFlowResults');
+    if (saved) {
+      setRecommendations(JSON.parse(saved));
+      setPhase('recommendations');
+      setIsLoading(false);
+    } else {
+      loadQuestions();
+    }
   }, []);
 
   const loadQuestions = async () => {
@@ -122,6 +129,7 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
         if (!res.ok) throw new Error('Failed to submit AI questions');
         const data = await res.json();
         setRecommendations(data.recommendations);
+        localStorage.setItem('freshmanFlowResults', JSON.stringify(data.recommendations));
         setPhase('recommendations');
       }
     } catch (e) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -91,6 +91,15 @@ export function RoommateQuiz({ moduleConfig }: { moduleConfig: ModuleConfig }) {
   const [phase, setPhase] = useState<'quiz' | 'results'>('quiz');
   const [shortlist, setShortlist] = useState<string[]>([]);
 
+  useEffect(() => {
+    const savedAnswers = localStorage.getItem('roommateQuizAnswers');
+    const savedShortlist = localStorage.getItem('roommateQuizShortlist');
+    if (savedAnswers) {
+      setAnswers(JSON.parse(savedAnswers));
+      if (savedShortlist) setShortlist(JSON.parse(savedShortlist));
+      setPhase('results');
+    }
+  }, []);
   const handleAnswer = (id: number, option: string) => {
     setAnswers(prev => ({ ...prev, [id]: option }));
   };
@@ -102,14 +111,20 @@ export function RoommateQuiz({ moduleConfig }: { moduleConfig: ModuleConfig }) {
     if (step < QUESTIONS.length - 1) {
       setStep(step + 1);
     } else {
+      localStorage.setItem('roommateQuizAnswers', JSON.stringify(answers));
+      if (shortlist.length > 0) {
+        localStorage.setItem('roommateQuizShortlist', JSON.stringify(shortlist));
+      }
       setPhase('results');
     }
   };
 
   const toggleShortlist = (id: string) => {
-    setShortlist(prev =>
-      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
-    );
+    setShortlist(prev => {
+      const updated = prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id];
+      localStorage.setItem('roommateQuizShortlist', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const renderQuestion = (q: Question) => (

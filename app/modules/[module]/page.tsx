@@ -19,6 +19,7 @@ import { ReportCardDashboard } from "./ReportCardDashboard";
 import { OnCampusJobsDashboard } from "./OnCampusJobsDashboard";
 import { NecessaryDocumentsDashboard } from "./NecessaryDocumentsDashboard";
 import { RoommateQuiz } from "./RoommateQuiz";
+import { HousingDashboard } from "./HousingDashboard";
 
 // Module configuration
 const MODULE_CONFIG = {
@@ -158,7 +159,7 @@ export default function ModulePage() {
     case "freshman-flow":
       return <OnboardingQuiz moduleConfig={moduleConfig} />;
     case "dorm":
-      return <DormQuiz moduleConfig={moduleConfig} />;
+      return <HousingDashboard moduleConfig={moduleConfig} />;
     case "job":
       return <JobQuiz moduleConfig={moduleConfig} />;
     case "roommate-search":
