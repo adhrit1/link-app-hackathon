@@ -59,7 +59,7 @@ export function DormQuiz({ moduleConfig }: { moduleConfig: ModuleConfig }) {
   const loadQuestions = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/modules/dorm`);
+      const response = await fetch(`/api/dorms`);
       if (!response.ok) {
         throw new Error('Failed to load questions');
       }
