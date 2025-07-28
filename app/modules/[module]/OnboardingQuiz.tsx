@@ -136,6 +136,7 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
         setRecommendations(data.recommendations);
         if (data.recommendations && data.recommendations.length > 0) {
           setSelectedDorm(data.recommendations[0].id);
+          localStorage.setItem('selectedDorm', data.recommendations[0].id);
         }
         localStorage.setItem('freshmanFlowResults', JSON.stringify(data.recommendations));
         setPhase('recommendations');
@@ -199,7 +200,10 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
               <div
                 key={rec.id}
                 className={`border rounded-md p-3 cursor-pointer flex justify-between items-center ${isSelected ? 'bg-teal-50 border-teal-500' : 'bg-white'}`}
-                onClick={() => setSelectedDorm(rec.id)}
+                onClick={() => {
+                  setSelectedDorm(rec.id);
+                  localStorage.setItem('selectedDorm', rec.id);
+                }}
               >
                 <div className="flex items-center gap-2">
                   {idx === 0 && (

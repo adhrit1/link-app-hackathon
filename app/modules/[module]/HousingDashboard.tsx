@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DormQuiz } from "./DormQuiz";
+import { DormLiving } from "./DormLiving";
 import { OnboardingQuiz } from "./OnboardingQuiz";
 import { RoommateQuiz } from "./RoommateQuiz";
 import { useAgentSystem } from "@/components/AgentSystem";
@@ -15,7 +15,7 @@ interface ModuleConfig {
 }
 
 export function HousingDashboard({ moduleConfig }: { moduleConfig: ModuleConfig }) {
-  const [tab, setTab] = useState<"housing" | "freshman" | "roommate">("housing");
+  const [tab, setTab] = useState<"living" | "freshman" | "roommate">("living");
   const [isFreshman, setIsFreshman] = useState(false);
   const { processRequest } = useAgentSystem();
 
@@ -54,7 +54,7 @@ export function HousingDashboard({ moduleConfig }: { moduleConfig: ModuleConfig 
           />
         );
       default:
-        return <DormQuiz moduleConfig={moduleConfig} />;
+        return <DormLiving moduleConfig={moduleConfig} />;
     }
   };
 
@@ -67,10 +67,10 @@ export function HousingDashboard({ moduleConfig }: { moduleConfig: ModuleConfig 
           </CardHeader>
           <CardContent className="flex gap-2">
             <Button
-              variant={tab === "housing" ? "default" : "outline"}
-              onClick={() => setTab("housing")}
+              variant={tab === "living" ? "default" : "outline"}
+              onClick={() => setTab("living")}
             >
-              Housing Quiz
+              Dorm Life
             </Button>
             <Button
               variant={tab === "freshman" ? "default" : "outline"}
