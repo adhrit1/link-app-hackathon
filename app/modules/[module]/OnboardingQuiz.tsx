@@ -44,7 +44,7 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /*useEffect(() => {
+  useEffect(() => {
     const saved = localStorage.getItem('freshmanFlowResults');
     if (saved) {
       setRecommendations(JSON.parse(saved));
@@ -53,10 +53,10 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
     } else {
       loadQuestions();
     }
-  }, []);*/
-  useEffect(() => {
-    loadQuestions();          // always start with a new quiz
   }, []);
+  /*useEffect(() => {
+    loadQuestions();          // always start with a new quiz
+  }, []);*/
   
   const loadQuestions = async () => {
     try {
