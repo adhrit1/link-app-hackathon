@@ -22,6 +22,11 @@ interface Recommendation {
   pros: string[];
   cons: string[];
   reddit_posts: Array<{ title: string; url: string }>;
+  debug?: {
+    post_count: number;
+    pros_titles: string[];
+    cons_titles: string[];
+  };
 }
 
 interface ModuleConfig {
@@ -44,19 +49,19 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // useEffect(() => {
+  //   const saved = localStorage.getItem('freshmanFlowResults');
+  //   if (saved) {
+  //     setRecommendations(JSON.parse(saved));
+  //     setPhase('recommendations');
+  //     setIsLoading(false);
+  //   } else {
+  //     loadQuestions();
+  //   }
+  // }, []);
   useEffect(() => {
-    const saved = localStorage.getItem('freshmanFlowResults');
-    if (saved) {
-      setRecommendations(JSON.parse(saved));
-      setPhase('recommendations');
-      setIsLoading(false);
-    } else {
-      loadQuestions();
-    }
-  }, []);
-  /*useEffect(() => {
     loadQuestions();          // always start with a new quiz
-  }, []);*/
+  }, []);
   
   const loadQuestions = async () => {
     try {
@@ -263,6 +268,17 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
                   <li key={i}>{c}</li>
                 ))}
               </ul>
+            </div>
+          )}
+          {selected.debug && (
+            <div className="text-xs text-gray-500 space-y-1 mt-2">
+              <div>Post count: {selected.debug.post_count}</div>
+              {selected.debug.pros_titles.length > 0 && (
+                <div>Pros from: {selected.debug.pros_titles.join(', ')}</div>
+              )}
+              {selected.debug.cons_titles.length > 0 && (
+                <div>Cons from: {selected.debug.cons_titles.join(', ')}</div>
+              )}
             </div>
           )}
         </div>

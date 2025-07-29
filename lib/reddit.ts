@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import vader from 'vader-sentiment'; 
 
 interface RedditPost {
   title: string;
@@ -150,6 +151,17 @@ const NEGATIVE_KEYWORDS = [
     "trash", "overpriced", "unstable", "inaccessible", "hard to reach", "outdated",
     "filthy", "disgusting", "uncomfortable"
   ];
+const DEFAULT_PROS = ["Clean", "Social", "Close to campus"];
+const DEFAULT_CONS = ["Loud", "Busy"];
+  
+const ALL_DORMS = [
+    "Unit 1",
+    "Unit 2",
+    "Unit 3",
+    "Foothill",
+    "Clark Kerr",
+    "Blackwell",
+  ];
 
 function extractSentences(text: string): string[] {
   return text
@@ -158,42 +170,167 @@ function extractSentences(text: string): string[] {
     .filter((s) => s.length > 0);
 }
 
-export function getPros(dorm: string, limit = 3): string[] {
-  const data = loadRedditData();
-  const posts = data.housing.filter((p) => {
-    const text = `${p.title} ${p.content}`.toLowerCase();
-    return text.includes(dorm.toLowerCase());
-  });
-  const pros: string[] = [];
-  for (const post of posts) {
-    const sentences = extractSentences(`${post.title}. ${post.content}`);
-    for (const sent of sentences) {
-      const lc = sent.toLowerCase();
-      if (lc.includes(dorm.toLowerCase()) && POSITIVE_KEYWORDS.some((w) => lc.includes(w))) {
-        pros.push(sent);
-        if (pros.length >= limit) return pros;
-      }
-    }
+function extractKeywords(sentence: string, keywords: string[]): string[] {
+    const lc = sentence.toLowerCase();
+    return keywords.filter((w) => lc.includes(w));
   }
-  return pros.slice(0, limit);
-}
-
-export function getCons(dorm: string, limit = 3): string[] {
-  const data = loadRedditData();
-  const posts = data.housing.filter((p) => {
-    const text = `${p.title} ${p.content}`.toLowerCase();
-    return text.includes(dorm.toLowerCase());
-  });
-  const cons: string[] = [];
-  for (const post of posts) {
-    const sentences = extractSentences(`${post.title}. ${post.content}`);
-    for (const sent of sentences) {
-      const lc = sent.toLowerCase();
-      if (lc.includes(dorm.toLowerCase()) && NEGATIVE_KEYWORDS.some((w) => lc.includes(w))) {
-        cons.push(sent);
-        if (cons.length >= limit) return cons;
+  
+  function analyzeKeywords(
+    dorm: string,
+    keywords: string[],
+    positive: boolean,
+    limit: number,
+  ): string[] {
+    const data = loadRedditData();
+    const dormRegex = new RegExp(`\\b${dorm.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&").replace(/\\s+/g, "\\s*")}\\b`, "i");
+    const otherDorms = ALL_DORMS.filter((d) => d !== dorm);
+    const otherRegexes = otherDorms.map((d) => new RegExp(`\\b${d.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&").replace(/\\s+/g, "\\s*")}\\b`, "i"));
+  
+    const posts = data.housing.filter((p) => {
+      const text = `${p.title} ${p.content}`;
+      return dormRegex.test(text);
+    });
+  
+    const results: string[] = [];
+  
+    const recordKeyword = (kw: string) => {
+      const cap = kw.charAt(0).toUpperCase() + kw.slice(1);
+      if (!results.includes(cap)) {
+        results.push(cap);
       }
+    };
+  
+    const analyzeSegment = (segment: string) => {
+      const score = vader.SentimentIntensityAnalyzer.polarity_scores(segment).compound;
+      if ((positive && score > 0) || (!positive && score < 0)) {
+        for (const kw of extractKeywords(segment, keywords)) {
+          recordKeyword(kw);
+          if (results.length >= limit) return true;
+        }
+      }
+      return false;
+    };
+  
+    for (const post of posts) {
+      const sentences = extractSentences(`${post.title}. ${post.content}`);
+      for (const sentence of sentences) {
+        if (!dormRegex.test(sentence)) continue;
+  
+        // If sentence mentions other dorms, try to split by connectors
+        const hasOther = otherRegexes.some((r) => r.test(sentence));
+        if (hasOther) {
+          const segments = sentence.split(/\b(?:but|however|although|though|whereas|while|than)\b/i);
+          for (const seg of segments) {
+            if (dormRegex.test(seg) && !otherRegexes.some((r) => r.test(seg))) {
+              if (analyzeSegment(seg)) break;
+            }
+          }
+        } else {
+          if (analyzeSegment(sentence)) continue;
+        }
+        if (results.length >= limit) break;
+      }
+      if (results.length >= limit) break;
     }
+  
+    if (results.length === 0) {
+      return (positive ? DEFAULT_PROS : DEFAULT_CONS).slice(0, limit);
+    }
+  
+    return results.slice(0, limit);
   }
-  return cons.slice(0, limit);
-}
+  
+  export function getPros(dorm: string, limit = 3): string[] {
+    return analyzeKeywords(dorm, POSITIVE_KEYWORDS, true, limit);
+  }
+  
+  export function getCons(dorm: string, limit = 3): string[] {
+    return analyzeKeywords(dorm, NEGATIVE_KEYWORDS, false, limit);
+  }
+  
+  interface KeywordDebug {
+    keywords: string[];
+    sources: string[];
+    count: number;
+  }
+  
+  function analyzeKeywordsDebug(
+    dorm: string,
+    keywords: string[],
+    positive: boolean,
+    limit: number,
+  ): KeywordDebug {
+    const data = loadRedditData();
+    const dormRegex = new RegExp(`\\b${dorm.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&").replace(/\\s+/g, "\\s*")}\\b`, "i");
+    const otherDorms = ALL_DORMS.filter((d) => d !== dorm);
+    const otherRegexes = otherDorms.map((d) => new RegExp(`\\b${d.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&").replace(/\\s+/g, "\\s*")}\\b`, "i"));
+  
+    const posts = data.housing.filter((p) => {
+      const text = `${p.title} ${p.content}`;
+      return dormRegex.test(text);
+    });
+  
+    const results: string[] = [];
+    const sources: string[] = [];
+  
+    const recordKeyword = (kw: string, title: string) => {
+      const cap = kw.charAt(0).toUpperCase() + kw.slice(1);
+      if (!results.includes(cap)) {
+        results.push(cap);
+      }
+      if (!sources.includes(title)) {
+        sources.push(title);
+      }
+    };
+  
+    const analyzeSegment = (segment: string, title: string) => {
+      const score = vader.SentimentIntensityAnalyzer.polarity_scores(segment).compound;
+      if ((positive && score > 0) || (!positive && score < 0)) {
+        for (const kw of extractKeywords(segment, keywords)) {
+          recordKeyword(kw, title);
+          if (results.length >= limit) return true;
+        }
+      }
+      return false;
+    };
+  
+    for (const post of posts) {
+      const sentences = extractSentences(`${post.title}. ${post.content}`);
+      for (const sentence of sentences) {
+        if (!dormRegex.test(sentence)) continue;
+  
+        const hasOther = otherRegexes.some((r) => r.test(sentence));
+        if (hasOther) {
+          const segments = sentence.split(/\b(?:but|however|although|though|whereas|while|than)\b/i);
+          for (const seg of segments) {
+            if (dormRegex.test(seg) && !otherRegexes.some((r) => r.test(seg))) {
+              if (analyzeSegment(seg, post.title)) break;
+            }
+          }
+        } else {
+          if (analyzeSegment(sentence, post.title)) continue;
+        }
+        if (results.length >= limit) break;
+      }
+      if (results.length >= limit) break;
+    }
+  
+    const keywordsResult = results.length === 0 ? (positive ? DEFAULT_PROS : DEFAULT_CONS).slice(0, limit) : results.slice(0, limit);
+  
+    return { keywords: keywordsResult, sources, count: posts.length };
+  }
+  
+  export function getProsDebug(dorm: string, limit = 3): KeywordDebug {
+    return analyzeKeywordsDebug(dorm, POSITIVE_KEYWORDS, true, limit);
+  }
+  
+  export function getConsDebug(dorm: string, limit = 3): KeywordDebug {
+    return analyzeKeywordsDebug(dorm, NEGATIVE_KEYWORDS, false, limit);
+  }
+  
+  export function countDormPosts(dorm: string): number {
+    const data = loadRedditData();
+    const dormRegex = new RegExp(`\\b${dorm.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&").replace(/\\s+/g, "\\s*")}\\b`, "i");
+    return data.housing.filter((p) => dormRegex.test(`${p.title} ${p.content}`)).length;
+  }
+  
