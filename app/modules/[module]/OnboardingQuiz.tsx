@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +49,7 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   // useEffect(() => {
   //   const saved = localStorage.getItem('freshmanFlowResults');
@@ -59,8 +61,26 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
   //     loadQuestions();
   //   }
   // }, []);
+  // useEffect(() => {
+  //   loadQuestions();          // always start with a new quiz
+  // }, []);
   useEffect(() => {
-    loadQuestions();          // always start with a new quiz
+    const completed = localStorage.getItem('quizCompleted') === 'true';
+    const saved = localStorage.getItem('freshmanFlowResults');
+    if (completed && saved) {
+      try {
+        const recs = JSON.parse(saved);
+        setRecommendations(recs);
+        setPhase('recommendations');
+        const sel = localStorage.getItem('selectedDorm');
+        if (sel) setSelectedDorm(sel);
+        setIsLoading(false);
+        return;
+      } catch {
+        // fall through to reload questions
+      }
+    }
+    loadQuestions();
   }, []);
   
   const loadQuestions = async () => {
@@ -144,6 +164,7 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
           localStorage.setItem('selectedDorm', data.recommendations[0].id);
         }
         localStorage.setItem('freshmanFlowResults', JSON.stringify(data.recommendations));
+        localStorage.setItem('quizCompleted', 'true');
         setPhase('recommendations');
       }
     } catch (e) {
@@ -195,30 +216,46 @@ export function OnboardingQuiz({ moduleConfig }: { moduleConfig: ModuleConfig })
   const renderRecommendations = () => {
     const selected =
       recommendations.find((r) => r.id === selectedDorm) || recommendations[0];
+    const handleSelect = (id: string) => {
+        localStorage.setItem('selectedDorm', id);
+        localStorage.setItem('dormSelected', id);
+        router.push(`/modules/dorm-life?dorm=${encodeURIComponent(id)}`);
+      };
 
-    return (
-      <div className="md:flex gap-6">
-        <div className="md:w-1/3 space-y-2 mb-6 md:mb-0">
-          {recommendations.map((rec, idx) => {
-            const isSelected = rec.id === selected.id;
-            return (
-              <div
-                key={rec.id}
-                className={`border rounded-md p-3 cursor-pointer flex justify-between items-center ${isSelected ? 'bg-teal-50 border-teal-500' : 'bg-white'}`}
-                onClick={() => {
-                  setSelectedDorm(rec.id);
-                  localStorage.setItem('selectedDorm', rec.id);
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  {idx === 0 && (
-                    <span className="text-green-600">
-                      ✓
-                    </span>
-                  )}
-                  <span className="font-medium">{rec.title}</span>
-                </div>
-                <Badge variant="secondary">{rec.score}% Match</Badge>
+      return (
+        <div className="md:flex gap-6">
+          <div className="md:w-1/3 space-y-2 mb-6 md:mb-0">
+            {recommendations.map((rec, idx) => {
+              const isSelected = rec.id === selected.id;
+              return (
+                <div
+                  key={rec.id}
+                  onClick={() => {
+                    setSelectedDorm(rec.id);
+                    localStorage.setItem('selectedDorm', rec.id);
+                  }}
+                  className={`cursor-pointer border rounded-md p-3 flex justify-between items-center ${isSelected ? 'bg-teal-50 border-teal-500' : 'bg-white'}`}
+                >
+                  <div className="flex items-center gap-2">
+                    {idx === 0 && (
+                      <span className="text-green-600">
+                        ✓
+                      </span>
+                    )}
+                    <span className="font-medium">{rec.title}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{rec.score}% Match</Badge>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelect(rec.id);
+                      }}
+                    >
+                      Select
+                    </Button>
+                  </div>
               </div>
             );
           })}

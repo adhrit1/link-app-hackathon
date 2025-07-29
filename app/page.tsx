@@ -69,7 +69,7 @@ const modules = [
     description: "Find and manage your housing arrangements, dorm info, and roommate matching.",
     icon: HomeIcon,
     color: "bg-cyan-500",
-    href: "/modules/dorm",
+    href: "/modules/housing",
     status: "completed"
   },
   {
